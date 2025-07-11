@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Perfil {
+  USUARIO
+  GESTOR
+  ADMIN
+}
+
+enum StatusRecurso {
+  DISPONIVEL
+  MANUTENCAO
+  QUEBRADO
+}
+
+enum StatusReserva {
+  PENDENTE
+  APROVADA
+  REJEITADA
+  CANCELADA
+  CONCLUIDA
+  EM_USO
+}
+
+
+model Usuario {
+  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
+  nome               String
+  email              String        @unique
+  senha              String
+  perfil             Perfil
+  ativo              Boolean       @default(true)
+  criadoEm           DateTime      @default(now()) @map("criado_em")
+  atualizadoEm       DateTime      @updatedAt @map("atualizado_em")
+
+  laboratorioMembroIds  String[]      @db.ObjectId @map("laboratorio_membro_ids")
+  laboratorioGerenteIds String[]      @db.ObjectId @map("laboratorio_gerente_ids")
+
+  laboratoriosMembro    Laboratorio[] @relation("MembrosLaboratorio", fields: [laboratorioMembroIds], references: [id])
+  laboratoriosGerente   Laboratorio[] @relation("GerentesLaboratorio", fields: [laboratorioGerenteIds], references: [id])
+
+  reservas           Reserva[]
+  notificacoes       Notificacao[]
+
+  @@map("usuarios")
+}
+
+model Laboratorio {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome             String   @unique
+  descricao        String
+  centroAcademico  String   @map("centro_academico")
+  criadoEm         DateTime @default(now()) @map("criado_em")
+  atualizadoEm     DateTime @updatedAt @map("atualizado_em")
+
+  membroIds        String[]  @db.ObjectId @map("membros_ids")
+  gerenteIds       String[]  @db.ObjectId @map("gerentes_ids")
+
+  membros          Usuario[] @relation("MembrosLaboratorio", fields: [membroIds], references: [id])
+  gerentes         Usuario[] @relation("GerentesLaboratorio", fields: [gerenteIds], references: [id])
+
+  recursos         Recurso[]
+
+  @@map("laboratorios")
+}
+
+model Recurso {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  nome            String
+  tipo            String
+  descricao       String
+  localizacao     String
+  regrasReserva   Json          @map("regras_reserva")
+  status          StatusRecurso @default(DISPONIVEL)
+
+  laboratorioId   String        @db.ObjectId @map("id_laboratorio")
+  laboratorio     Laboratorio   @relation(fields: [laboratorioId], references: [id])
+
+  criadoEm        DateTime      @default(now()) @map("criado_em")
+  atualizadoEm    DateTime      @updatedAt @map("atualizado_em")
+
+  // Relacionamentos
+  reservas        Reserva[]
+  bloqueios       Bloqueio[]
+
+  @@map("recursos")
+}
+
+model Reserva {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  inicio        DateTime
+  fim           DateTime
+  status        StatusReserva @default(PENDENTE)
+  justificativa String?
+
+  usuarioId     String        @db.ObjectId @map("id_usuario")
+  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
+
+  recursoId     String        @db.ObjectId @map("id_recurso")
+  recurso       Recurso       @relation(fields: [recursoId], references: [id])
+
+  criadoEm      DateTime      @default(now()) @map("criado_em")
+  atualizadoEm  DateTime      @updatedAt @map("atualizado_em")
+
+  @@map("reservas")
+}
+
+model Notificacao {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tipo      String
+  conteudo  String
+  lida      Boolean  @default(false)
+  dataEnvio DateTime @default(now()) @map("data_envio")
+
+  usuarioId String   @db.ObjectId @map("id_usuario")
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@map("notificacoes")
+}
+
+model Bloqueio {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  inicio    DateTime
+  fim       DateTime
+  motivo    String
+
+  recursoId String   @db.ObjectId @map("id_recurso")
+  recurso   Recurso  @relation(fields: [recursoId], references: [id])
+
+  criadoEm  DateTime @default(now()) @map("criado_em")
+
+  @@map("bloqueios")
+}
