@@ -30,10 +30,10 @@ export default function LoginPage() {
 
 
       // Lógica de autenticação simulada:
-      if (email === 'user@example.com' && password === '123') {
+      if (email === 'user@example.com' && password === 'password123') {
         console.log('Login bem-sucedido!');
         // Redireciona para a página principal (ou dashboard) após o login
-        router.push('/pagina-inicial'); // Ou '/' para a página inicial
+        router.push('/dashboard'); // Ou '/' para a página inicial
       } else {
         setError('E-mail ou senha inválidos.');
       }
@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   return (
     <>
-    <Header rota="" user="" />
+    <Header rota="" />
     
     <div className='container'>
       <h1 className='title'>Entrar</h1>

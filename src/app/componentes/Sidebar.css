@@ -1,13 +1,20 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 .Header {
     display: flex;
     height: 10vh;
     width: 100vw;
     background-color: red;
-    padding: 0 5px 0 5px;
+    padding: 10px;
     align-items: center; /* Adicionado para alinhar os itens do header verticalmente */
+    border-bottom: 1px solid black
   }
   
-  .BotaoLogin {
+.BotaoLogin {
     display: flex; 
     justify-content: center;
     align-items: center; 
@@ -17,4 +24,11 @@
     margin-left: auto;
     background-color: rgb(36, 35, 35);
     color: white;
-  }
+}
+
+div {
+    all: unset;   
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
