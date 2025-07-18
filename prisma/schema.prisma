@@ -35,15 +35,18 @@ enum StatusReserva {
 }
 
 
-model Usuario {
+model User {
   id                 String        @id @default(auto()) @map("_id") @db.ObjectId
-  nome               String
+  name               String?       @map("nome")
   email              String        @unique
-  senha              String
-  perfil             Perfil
+  emailVerified      DateTime?     @map("email_verificado")
+  image              String?
+  password           String?       @map("senha")
+
+  perfil             Perfil        @default(USUARIO)
   ativo              Boolean       @default(true)
   criadoEm           DateTime      @default(now()) @map("criado_em")
-  atualizadoEm       DateTime      @updatedAt @map("atualizado_em")
+  updatedAt          DateTime      @updatedAt @map("atualizado_em")
 
   laboratorioMembroIds  String[]      @db.ObjectId @map("laboratorio_membro_ids")
   laboratorioGerenteIds String[]      @db.ObjectId @map("laboratorio_gerente_ids")
@@ -54,7 +57,50 @@ model Usuario {
   reservas           Reserva[]
   notificacoes       Notificacao[]
 
+  accounts           Account[]
+  sessions           Session[]
+
   @@map("usuarios")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId // Foreign key to User
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String // db.String for potentially very long tokens
+  access_token      String? @db.String // db.String for potentially very long tokens
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String // db.String for potentially very long tokens
+  session_state     String?
+
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
 }
 
 model Laboratorio {
@@ -68,8 +114,8 @@ model Laboratorio {
   membroIds        String[]  @db.ObjectId @map("membros_ids")
   gerenteIds       String[]  @db.ObjectId @map("gerentes_ids")
 
-  membros          Usuario[] @relation("MembrosLaboratorio", fields: [membroIds], references: [id])
-  gerentes         Usuario[] @relation("GerentesLaboratorio", fields: [gerenteIds], references: [id])
+  membros          User[] @relation("MembrosLaboratorio", fields: [membroIds], references: [id])
+  gerentes         User[] @relation("GerentesLaboratorio", fields: [gerenteIds], references: [id])
 
   recursos         Recurso[]
 
@@ -106,7 +152,7 @@ model Reserva {
   justificativa String?
 
   usuarioId     String        @db.ObjectId @map("id_usuario")
-  usuario       Usuario       @relation(fields: [usuarioId], references: [id])
+  usuario       User       @relation(fields: [usuarioId], references: [id])
 
   recursoId     String        @db.ObjectId @map("id_recurso")
   recurso       Recurso       @relation(fields: [recursoId], references: [id])
@@ -125,7 +171,7 @@ model Notificacao {
   dataEnvio DateTime @default(now()) @map("data_envio")
 
   usuarioId String   @db.ObjectId @map("id_usuario")
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuario   User  @relation(fields: [usuarioId], references: [id])
 
   @@map("notificacoes")
 }
