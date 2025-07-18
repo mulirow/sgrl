@@ -2,7 +2,6 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,8 +10,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useState } from "react"
-import { EditLabDialog } from "@/components/edit-lab-dialog"
 
 export type Lab = {
   id: string
@@ -40,7 +37,7 @@ const academic_centers = [
   },
 ]
 
-export const columns: ColumnDef<Lab>[] = [
+export const columns = (onEditClick: (lab: Lab) => void): ColumnDef<Lab>[] => [
   {
     accessorKey: "nome",
     header: "Nome",
@@ -62,45 +59,40 @@ export const columns: ColumnDef<Lab>[] = [
     id: "actions",
     cell: ({ row }) => {
       const lab = row.original
-      const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-      const handleDelete = async () => {
+      const handleDelete = async (id: string) => {
         try {
-          const response = await fetch(`/api/labs/${lab.id}`, {
+          const response = await fetch(`/api/labs/${id}`, {
             method: 'DELETE'
           })
-
+          
+          if (!response.ok) {
+            throw new Error('Failed to delete lab')
+          }
+          // You might want to refresh the data here or use a state update
         } catch (error) {
           console.error('Error deleting lab:', error)
         }
       }
 
       return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Abrir menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Ações</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
-                Editar laboratório
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete}>
-                Excluir laboratório
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <EditLabDialog
-            lab={lab}
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-          />
-        </>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Abrir menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Ações</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => onEditClick(lab)}>
+              Editar laboratório
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDelete(lab.id)}>
+              Excluir laboratório
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )
     },
   },

@@ -1,5 +1,6 @@
 "use client"
 
+import { Lab } from "@/app/dashboard/manage/columns"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,17 +13,15 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Lab } from "@/app/dashboard/manage/columns"
 
 interface EditLabDialogProps {
   lab: Lab
   open: boolean
   onOpenChange: (open: boolean) => void
+  onLabUpdated: (updatedLab: Lab) => void
 }
 
-export function EditLabDialog({ lab, open, onOpenChange }: EditLabDialogProps) {
-  const router = useRouter()
+export function EditLabDialog({ lab, open, onOpenChange, onLabUpdated }: EditLabDialogProps) {
   const [formData, setFormData] = useState({
     nome: lab.nome,
     descricao: lab.descricao,
@@ -50,8 +49,9 @@ export function EditLabDialog({ lab, open, onOpenChange }: EditLabDialogProps) {
       })
 
       if (response.ok) {
+        const updatedLab = await response.json()
+        onLabUpdated(updatedLab)
         onOpenChange(false)
-        router.refresh() 
       } else {
         console.error('Failed to update lab')
       }
@@ -59,7 +59,6 @@ export function EditLabDialog({ lab, open, onOpenChange }: EditLabDialogProps) {
       console.error('Error updating lab:', error)
     }
   }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">

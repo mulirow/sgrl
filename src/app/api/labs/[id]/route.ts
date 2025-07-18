@@ -7,7 +7,6 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = Number(params.id);
   const data = await req.json();
 
   try {
@@ -18,6 +17,7 @@ export async function PATCH(
 
     return NextResponse.json(updatedLab, { status: 200 });
   } catch (error) {
+    console.error("Error updating lab:", error);
     return NextResponse.json(
       { error: "Lab not found or update failed." },
       { status: 404 }
@@ -38,6 +38,7 @@ export async function DELETE(
 
     return new Response(null, { status: 204 });
   } catch (error) {
+    console.error("Error deleting lab:", error);
     return NextResponse.json(
       { error: "Lab not found or delete failed." },
       { status: 404 }

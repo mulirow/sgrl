@@ -21,6 +21,7 @@ import { DataTable } from "./data-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle } from "lucide-react"
+import { EditLabDialog } from "@/components/edit-lab-dialog"
 
 const academic_centers = [
     {
@@ -77,6 +78,7 @@ export default function ResourcesManagement() {
     const [selected, setSelected] = React.useState("")
     const [labs, setLabs] = React.useState<Lab[]>([])
     const [isSubmitting, setIsSubmitting] = React.useState(false)
+    const [editingLab, setEditingLab] = React.useState<Lab | null>(null)
     const formRef = React.useRef<HTMLFormElement>(null)
 
     React.useEffect(() => {
@@ -119,6 +121,10 @@ export default function ResourcesManagement() {
         } finally {
             setIsSubmitting(false)
         }
+    }
+
+    const handleEditClick = (lab: Lab) => {
+        setEditingLab(lab)
     }
 
     return (
@@ -204,9 +210,24 @@ export default function ResourcesManagement() {
                 </CardHeader>
                 <CardContent>
                     <DataTable
-                        columns={columns}
+                        columns={columns(handleEditClick)}
                         data={labs}
                     />
+
+                    {editingLab && (
+                        <EditLabDialog
+                            lab={editingLab}
+                            open={!!editingLab}
+                            onOpenChange={(open) => {
+                                if (!open) setEditingLab(null)
+                            }}
+                            onLabUpdated={(updatedLab) => {
+                                // Update the labs list after edit
+                                setLabs(labs.map(l => l.id === updatedLab.id ? updatedLab : l))
+                                setEditingLab(null)
+                            }}
+                        />
+                    )}
                 </CardContent>
             </Card>
         </div>
