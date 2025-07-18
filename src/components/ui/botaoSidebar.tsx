@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-
+import './botaoSidebar.css';
 
 // Definição de Tipo para um Item da Sidebar
 interface SidebarItem {
@@ -27,22 +27,25 @@ export default function BotaoSidebar({ lista, activePath }: BotaoSidebarProps) {
         const isActive = activePath === item.path;
 
         return (
-          // Em um ambiente Next.js, a tag <Link> de 'next/link' seria usada.
-          // Aqui, usamos uma tag <a> para simular o comportamento de link.
+          // Falta implementar a propriedade hoover do css para mudar quando o mouse estiver por cima
           <Link
             key={item.id}
             href={item.path}
-            className={`
-              flex items-center w-full p-3 rounded-lg text-left
-              transition-colors duration-200 ease-in-out
-              ${isActive
-                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
-                : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
-              }
-            `}
-          >
-            <IconComponent className="mr-3 h-5 w-5" />
-            <span className="text-sm font-medium">{item.label}</span>
+            className={`botaoSidebar
+                ${isActive
+                  ? 'ativo'
+                  : 'desativado'
+                }`}>
+            <IconComponent className={`icone
+                ${isActive
+                  ? 'ativo'
+                  : 'desativado'
+                }`} />
+            <span className={`labelBotao
+                ${isActive
+                  ? 'ativo'
+                  : 'desativado'
+                }`}>{item.label}</span>
           </Link>
         );
       })}

@@ -4,31 +4,36 @@
     box-sizing: border-box;
 }
 
-.Header {
-    display: flex;
-    height: 10vh;
-    width: 100vw;
-    background-color: red;
-    padding: 10px;
-    align-items: center; /* Adicionado para alinhar os itens do header verticalmente */
-    border-bottom: 1px solid black
-  }
-  
-.BotaoLogin {
+
+.botaoSidebar {
     display: flex; 
-    justify-content: center;
-    align-items: center; 
-    border-radius: 5px;
-    padding: 10px;
-    width: auto;
-    margin-left: auto;
-    background-color: rgb(36, 35, 35);
-    color: white;
+    flex-direction: row;
+    border-radius: 10px;
+    align-items: center;
+    width: 80%;
+    height: 45px;
+    padding: 0;
 }
 
-div {
-    all: unset;   
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.ativo{ 
+    background-color: rgba(211, 0, 0, 0.89);
+    color: white;
+} 
+
+.desativado { 
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(0, 0, 0);
+} 
+    
+.icone{
+    width: auto;
+    margin-left: 10px;
+    background-color: transparent;
 }
+
+.labelBotao{
+    margin-top: 1px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
