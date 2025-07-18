@@ -4,16 +4,16 @@
     box-sizing: border-box;
 }
 
-.Sidebar {
+.Header {
     display: flex;
-    height: 90vh;
-    width: 20vw;
+    height: 10vh;
+    max-width: 100vw;
     background-color: red;
     padding: 10px;
     align-items: center; /* Adicionado para alinhar os itens do header verticalmente */
     border-bottom: 1px solid black
-  }
-  /* EDITAR BOTÕES */
+}
+  
 .BotaoLogin {
     display: flex; 
     justify-content: center;

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import './componentes.css';
+import './Header.css';
 
 interface HeaderProps {
   rota: string; // 'rota' é uma string que representa o caminho para o Link
@@ -13,7 +13,7 @@ export default function Header({ rota, user }: HeaderProps) {
         <Link className="BotaoLogin" href={rota}>
             <button>
               {/* Exemplo de uso da prop 'user' aqui */}
-              {user ? `Bem-vindo, ${user}` : 'Login'}
+              {user ? `BBem-vindo, ${user}` : 'Login'}
             </button>
         </Link>
       )
