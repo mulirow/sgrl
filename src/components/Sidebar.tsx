@@ -22,7 +22,7 @@ interface SidebarItem {
   roles?: ('user' | 'manager')[];
 }
 
-// Definindo os itens base fora dos componentes para evitar recriação desnecessária.
+// Definindo os itens base fora dos components para evitar recriação desnecessária.
 const baseItems: SidebarItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/', roles: ['user', 'manager'] },
   { id: 'calendar', label: 'Calendário', icon: Calendar, path: '/calendar', roles: ['user', 'manager'] },

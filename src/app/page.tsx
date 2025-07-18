@@ -1,8 +1,8 @@
 'use client'; // <-- Importante: para que o componente possa ter interatividade (estado, eventos)
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'; // Importa useRouter para redirecionamento
-import Header  from "./componentes/Header";
-import Sidebar from './componentes/Sidebar';
+import Header  from "../components/Header";
+import Sidebar from '../components/Sidebar';
 import React from 'react';
 
 

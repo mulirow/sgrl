@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'; // Importa useRouter para redirecionamento
 import './login.css';
-import Header from "../componentes/Header";
+import Header from "../components/Header";
 
 
 export default function LoginPage() {
