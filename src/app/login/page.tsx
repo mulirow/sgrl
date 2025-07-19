@@ -1,83 +1,66 @@
-// app/login/page.tsx
+"use client";
 
-'use client'; 
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Importa useRouter para redirecionamento
-import './login.css';
-import Header from "../components/Header";
-
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { LogInIcon } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null); // Estado para mensagens de erro
-  const router = useRouter();                              // Instância do router para navegação
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { data: session, status } = useSession();
+    const router = useRouter();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Previne o recarregamento da página
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.push("/");
+        }
+    }, [status, router]);
 
-    setError(null); // Limpa erros anteriores
-
-    // Simulação de chamada de API para autenticação
-    try {
-      // Aqui você faria uma chamada real para sua API de autenticação
-      // Exemplo: const response = await fetch('/api/login', { /* ... */ });
-      // const data = await response.json();
-
-
-
-
-
-      // Lógica de autenticação simulada:
-      if (email === 'user@example.com' && password === '123') {
-        console.log('Login bem-sucedido!');
-        // Redireciona para a página principal (ou dashboard) após o login
-        router.push('/pagina-inicial'); // Ou '/' para a página inicial
-      } else {
-        setError('E-mail ou senha inválidos.');
-      }
-    } catch (err) {
-      setError('Ocorreu um erro durante o login. Tente novamente.');
-      console.error('Erro de login:', err);
+    if (status === "loading") {
+        return (
+            <div className="flex h-screen w-full items-center justify-center">
+                <p>Verificando autenticação...</p>
+            </div>
+        );
     }
-  };
 
-  return (
-    <>
-    <Header rota="" user="" />
-    
-    <div className='container'>
-      <h1 className='title'>Entrar</h1>
-      <form onSubmit={handleSubmit} >
-        <div className='inputGroup'>
-          <label htmlFor="email" >E-mail:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className='inputGroup'>
-          <label htmlFor="password" >Senha:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+    if (status === "unauthenticated") {
+        return (
+            <main className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
+                <Card className="w-full max-w-sm">
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-2xl font-bold">SGRL</CardTitle>
+                        <CardDescription>
+                            Sistema de Gerenciamento de Reservas de Laboratórios
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <p className="text-center text-sm text-muted-foreground">
+                                Use sua conta institucional @ufpe.br para continuar.
+                            </p>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => signIn("google")}
+                            >
+                                <LogInIcon className="mr-2 h-4 w-4" />
+                                Entrar com Google
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </main>
+        );
+    }
 
-        {error && <p className='errorText'>{error}</p>}
-
-        <button type="submit" className='button'>
-          Login
-        </button>
-      </form>
-    </div>
-    </>
-  );
+    return null;
 }
