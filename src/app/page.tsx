@@ -1,6 +1,5 @@
 'use client'; // <-- Importante: para que o componente possa ter interatividade (estado, eventos)
 
-import { useRouter } from 'next/navigation'; // Importa useRouter para redirecionamento
 import Header  from "../components/Header";
 import React from 'react';
 import { UserNav } from "@/components/auth/user-nav";
