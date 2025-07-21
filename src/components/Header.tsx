@@ -1,4 +1,3 @@
-import { UserNav } from "@/components/auth/user-nav";
 import Link from 'next/link';
 import './Header.css';
 
@@ -8,18 +7,18 @@ interface HeaderProps {
 }
 
 export default function Header({ rota, user }: HeaderProps) {
-//   function renderizaBotao (){
-//     if (rota !== ''){
-//       return(
-//         <Link className="BotaoLogin" href={rota}>
-//             <button>
-//               {/* Exemplo de uso da prop 'user' aqui */}
-//               {user ? `BBem-vindo, ${user}` : 'Login'}
-//             </button>
-//         </Link>
-//       )
-//     }
-//   }
+  function renderizaBotao (){
+    if (rota !== ''){
+      return(
+        <Link className="BotaoLogin" href={rota}>
+            <button>
+              {/* Exemplo de uso da prop 'user' aqui */}
+              {user ? `BBem-vindo, ${user}` : 'Login'}
+            </button>
+        </Link>
+      )
+    }
+  }
 
   return (
     <>
@@ -31,15 +30,15 @@ export default function Header({ rota, user }: HeaderProps) {
             />
         <div> 
           <p style={{
-              fontWeight: 'bold', // Propriedades CSS em camelCase e valores como strings
-              fontSize: '1.2em',   // 'font-size' vira 'fontSize'
-            }} >Sistema de Reservas</p>
+            fontWeight: 'bold', // Propriedades CSS em camelCase e valores como strings
+            fontSize: '1.2em',   // 'font-size' vira 'fontSize'
+          }} >Sistema de Reservas</p>
           <p style={{
-              fontSize: '0.9em',   // 'font-size' vira 'fontSize'
-            }}>UFPE</p>
+            fontSize: '0.9em',   // 'font-size' vira 'fontSize'
+          }}>UFPE</p>
         </div>
-        <UserNav/>
         
+        {renderizaBotao()}
       </header>
     </>
   );
