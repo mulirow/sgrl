@@ -104,7 +104,7 @@ const ReservaLaboratorioPage: React.FC = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/reservas/laboratorio', {
+      const response = await fetch('/api/reservas', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
