@@ -10,6 +10,7 @@
     max-width: 100vw;
     background-color: red;
     padding: 10px;
+    justify-content: space-between;
     align-items: center; /* Adicionado para alinhar os itens do header verticalmente */
     border-bottom: 1px solid black
 }
@@ -27,6 +28,19 @@
 }
 
 div {
+    all: unset;   
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.container{
+    all: unset;   
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.containerNomes{
     all: unset;   
     display: flex;
     flex-direction: column;

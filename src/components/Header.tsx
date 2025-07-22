@@ -1,5 +1,7 @@
-import Link from 'next/link';
+"use client";
 import './Header.css';
+import { usePathname } from 'next/navigation'; // Importa o hook para obter o caminho atual
+import { UserNav } from "./auth/user-nav";
 
 interface HeaderProps {
   rota: string; // 'rota' é uma string que representa o caminho para o Link
@@ -7,38 +9,35 @@ interface HeaderProps {
 }
 
 export default function Header({ rota, user }: HeaderProps) {
-  function renderizaBotao (){
-    if (rota !== ''){
-      return(
-        <Link className="BotaoLogin" href={rota}>
-            <button>
-              {/* Exemplo de uso da prop 'user' aqui */}
-              {user ? `BBem-vindo, ${user}` : 'Login'}
-            </button>
-        </Link>
-      )
-    }
-  }
+  const pathname = usePathname(); // Obtém o caminho da URL atual
 
+  // Define se o UserNav deve ser exibido (apenas na rota raiz '/')
+  const shouldShowUserNav = pathname === '/';
   return (
     <>
       <header className="Header">
-        <img
-            src="/BrasaoUFPE.png"
-            alt="Brasão Universidade Federal De Pernambuco"
-            style={{ height: '10vh' }}
-            />
-        <div> 
-          <p style={{
-            fontWeight: 'bold', // Propriedades CSS em camelCase e valores como strings
-            fontSize: '1.2em',   // 'font-size' vira 'fontSize'
-          }} >Sistema de Reservas</p>
-          <p style={{
-            fontSize: '0.9em',   // 'font-size' vira 'fontSize'
-          }}>UFPE</p>
-        </div>
         
-        {renderizaBotao()}
+        <div className='container'> 
+            <img
+              src="/BrasaoUFPE.png"
+              alt="Brasão Universidade Federal De Pernambuco"
+              style={{ height: '10vh' }}/>
+          <div className='containerNomes'>
+            
+            <p style={{
+                color: 'white',
+                fontWeight: 'bold', // Propriedades CSS em camelCase e valores como strings
+                fontSize: '1.2em',   // 'font-size' vira 'fontSize'
+              }} >Sistema de Reservas</p>
+              <p style={{
+                color: 'white',
+                fontSize: '0.9em',   // 'font-size' vira 'fontSize'
+              }}>UFPE</p>
+          </div>
+          
+        </div>
+
+        {shouldShowUserNav && <UserNav />}
       </header>
     </>
   );
