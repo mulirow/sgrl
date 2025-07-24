@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient()
 
@@ -7,33 +7,52 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }
 ) {
+    const { id } = params;
+    
+    try {
+        const resources = await prisma.recurso.findMany({
+            where: {
+                laboratorioId: id
+            }
+        });
 
-    const { id } = params
-
-    const resources = await prisma.recurso.findMany({
-        where: {
-            laboratorioId: id
-        }
-    })
-
-    return Response.json(resources)
+        return NextResponse.json(resources);
+    } catch (error) {
+        console.error('Error fetching resources:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch resources' },
+            { status: 500 }
+        );
+    }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-    const body = await req.json()
-    const { id } = params
+export async function POST(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    const { id } = params;
+    const body = await request.json();
+    
+    const { nome, tipo, descricao, localizacao, regrasReserva } = body;
+    
+    try {
+        const newResource = await prisma.recurso.create({
+            data: {
+                nome,
+                tipo,
+                descricao,
+                localizacao,
+                regrasReserva,
+                laboratorioId: id
+            }
+        });
 
-    const { nome, tipo, descricao, localizacao, regrasReserva } = body
-    const newResource = await prisma.recurso.create({
-        data: {
-            nome,
-            tipo,
-            descricao,
-            localizacao,
-            regrasReserva,
-            laboratorioId: id
-        }
-    })
-
-    return Response.json(newResource)
+        return NextResponse.json(newResource);
+    } catch (error) {
+        console.error('Error creating resource:', error);
+        return NextResponse.json(
+            { error: 'Failed to create resource' },
+            { status: 500 }
+        );
+    }
 }
