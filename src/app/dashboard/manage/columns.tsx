@@ -48,7 +48,11 @@ const academic_centers = [
   },
 ]
 
-export const columns = (onEditClick: (lab: Lab) => void, onDeleteSuccess?: () => void): ColumnDef<Lab>[] => [
+export const columns = (
+  onEditClick: (lab: Lab) => void, 
+  onDeleteSuccess?: () => void,
+  onResourcesClick?: (lab: Lab) => void
+): ColumnDef<Lab>[] => [
   {
     accessorKey: "nome",
     header: "Nome",
@@ -104,6 +108,11 @@ export const columns = (onEditClick: (lab: Lab) => void, onDeleteSuccess?: () =>
             <DropdownMenuItem onClick={() => onEditClick(lab)}>
               Editar laboratório
             </DropdownMenuItem>
+            {onResourcesClick && (
+              <DropdownMenuItem onClick={() => onResourcesClick(lab)}>
+                Ver recursos
+              </DropdownMenuItem>
+            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
