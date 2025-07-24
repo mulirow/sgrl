@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator"
 import { PlusCircle } from "lucide-react"
 import { EditLabDialog } from "@/components/edit-lab-dialog"
 
-const academic_centers = [
+export const academic_centers = [
     {
         value: "cac",
         label: "Centro de Artes e Comunicação",
@@ -75,7 +75,7 @@ async function addLab(nome: string, descricao: string, centro_academico: string)
 }
 
 export default function ResourcesManagement() {
-    const [selected, setSelected] = React.useState("")
+    const [selectedCenter, setSelectedCenter] = React.useState("")
     const [labs, setLabs] = React.useState<Lab[]>([])
     const [isSubmitting, setIsSubmitting] = React.useState(false)
     const [editingLab, setEditingLab] = React.useState<Lab | null>(null)
@@ -104,18 +104,18 @@ export default function ResourcesManagement() {
         const nome = formData.get("name")?.toString().trim() || ""
         const descricao = formData.get("description")?.toString().trim() || ""
 
-        if (!nome || !descricao || !selected) {
+        if (!nome || !descricao || !selectedCenter) {
             console.warn("Todos os campos são obrigatórios.")
             setIsSubmitting(false)
             return
         }
 
         try {
-            await addLab(nome, descricao, selected)
+            await addLab(nome, descricao, selectedCenter)
             const updatedLabs = await fetchLabs()
             setLabs(updatedLabs)
             form.reset()
-            setSelected("")
+            setSelectedCenter("")
         } catch (error) {
             console.error("Error adding lab:", error)
         } finally {
@@ -180,8 +180,8 @@ export default function ResourcesManagement() {
                                     <Label>Centro Acadêmico</Label>
                                     <Combobox
                                         options={academic_centers}
-                                        value={selected}
-                                        onChange={setSelected}
+                                        value={selectedCenter}
+                                        onChange={setSelectedCenter}
                                         placeholder="Selecione o centro acadêmico"
                                     />
                                 </div>
