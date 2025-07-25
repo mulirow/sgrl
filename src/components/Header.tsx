@@ -2,7 +2,7 @@
 import './Header.css';
 import { usePathname } from 'next/navigation'; // Importa o hook para obter o caminho atual
 import { UserNav } from "./auth/user-nav";
-
+// fhfgh
 
 export default function Header() {
   const pathname = usePathname(); // Obtém o caminho da URL atual
