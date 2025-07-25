@@ -35,6 +35,7 @@ const authConfig = {
       if (session.user) {
         session.user.id = user.id;
         session.user.perfil = user.perfil;
+        console.log("Passei ")
       }
       return session;
     },

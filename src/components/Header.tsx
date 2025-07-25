@@ -19,7 +19,6 @@ export default function Header() {
               alt="Brasão Universidade Federal De Pernambuco"
               style={{ height: '10vh' }}/>
           <div className='containerNomes'>
-            
             <p style={{
                 color: 'white',
                 fontWeight: 'bold', // Propriedades CSS em camelCase e valores como strings
@@ -30,10 +29,10 @@ export default function Header() {
                 fontSize: '0.9em',   // 'font-size' vira 'fontSize'
               }}>UFPE</p>
           </div>
-          
         </div>
 
-        {shouldShowUserNav && <UserNav />}
+        {shouldShowUserNav && <UserNav />} {/* Botão de "Entrar com Google" */}
+
       </header>
     </>
   );
