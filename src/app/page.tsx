@@ -1,6 +1,5 @@
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
 import React from 'react';
-import { UserNav } from "@/components/auth/user-nav";
 
 // ANTES DE RODAR
 
@@ -22,8 +21,7 @@ import { UserNav } from "@/components/auth/user-nav";
 export default function Home() {
   return (
     <>
-      <UserNav />
-      <Header rota="/login" user="" />
+      {/* <Header /> */}
 
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         {/* <img src="/bibCAC.JPG" alt="" /> */}
