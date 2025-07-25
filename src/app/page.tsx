@@ -1,22 +1,6 @@
 // import Header from "@/components/Header";
 import React from 'react';
 
-// ANTES DE RODAR
-
-// baixar .env
-// npm install
-// npx prisma generate
-// npx prisma db push
-
-// RODAR:
-
-// npm run dev
-
-// Antes do comit
-
-// npm run lint
-// npm run build
-
 
 export default function Home() {
   return (
