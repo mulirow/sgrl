@@ -24,7 +24,7 @@ import { PlusCircle } from "lucide-react"
 import { EditLabDialog } from "@/components/edit-lab-dialog"
 import { ResourcesDialog } from "@/components/resources-dialog"
 
-export const academic_centers = [
+const academic_centers = [
     {
         value: "cac",
         label: "Centro de Artes e Comunicação",

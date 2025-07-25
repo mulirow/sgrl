@@ -1,7 +1,6 @@
 "use client"
 
 import { Lab } from "@/app/dashboard/manage/columns"
-import { academic_centers } from "@/app/dashboard/manage/page"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,6 +15,25 @@ import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { Combobox } from "./ui/combobox"
 import React from "react"
+
+const academic_centers = [
+    {
+        value: "cac",
+        label: "Centro de Artes e Comunicação",
+    },
+    {
+        value: "cin",
+        label: "Centro de Informática",
+    },
+    {
+        value: "ccen",
+        label: "Centro de Ciências Exatas e da Natureza",
+    },
+    {
+        value: "ccsa",
+        label: "Centro de Ciências Sociais Aplicadas",
+    },
+]
 
 interface EditLabDialogProps {
   lab: Lab

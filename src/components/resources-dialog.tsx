@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Table,
@@ -69,13 +68,7 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
   const [deletingResource, setDeletingResource] = useState<Resource | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  useEffect(() => {
-    if (open && id) {
-      fetchResources()
-    }
-  }, [open, id])
-
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/labs/${id}/resources`)
@@ -92,7 +85,13 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
+
+  useEffect(() => {
+    if (open && id) {
+      fetchResources()
+    }
+  }, [open, id, fetchResources])
 
   const handleAddResource = async (formData: ResourceFormData) => {
     setSubmitting(true)
@@ -283,7 +282,7 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
               <div>
                 <DialogTitle>Recursos do Laboratório</DialogTitle>
                 <DialogDescription>
-                  Recursos disponíveis no laboratório "{labName}"
+                  Recursos disponíveis no laboratório labName
                 </DialogDescription>
               </div>
               <Button onClick={() => setShowAddDialog(true)}>
@@ -401,23 +400,26 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deletingResource} onOpenChange={(open) => !open && setDeletingResource(null)}>
+      <AlertDialog 
+        open={!!deletingResource} 
+        onOpenChange={(open: boolean) => !open && setDeletingResource(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente o recurso
-              "{deletingResource?.nome}" e removerá seus dados de nossos servidores.
-            </AlertDialogDescription>
+        <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+        <AlertDialogDescription>
+          Esta ação não pode ser desfeita. Isso excluirá permanentemente o recurso
+          {deletingResource?.nome} e removerá seus dados de nossos servidores.
+        </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => deletingResource && handleDeleteResource(deletingResource.id)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Excluir
-            </AlertDialogAction>
+        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+        <AlertDialogAction 
+          onClick={() => deletingResource && handleDeleteResource(deletingResource.id)}
+          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        >
+          Excluir
+        </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

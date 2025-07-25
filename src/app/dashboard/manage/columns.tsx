@@ -124,7 +124,7 @@ export const columns = (
                   <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                   <AlertDialogDescription>
                     Esta ação não pode ser desfeita. Isso excluirá permanentemente o laboratório
-                    "{lab.nome}" e removerá seus dados de nossos servidores.
+                    lab.nome e removerá seus dados de nossos servidores.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

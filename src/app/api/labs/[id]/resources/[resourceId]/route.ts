@@ -5,9 +5,9 @@ const prisma = new PrismaClient()
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string, resourceId: string } }
+    { params }: { params: Promise<{ id: string, resourceId: string }> }
 ) {
-    const { resourceId } = params;
+    const { resourceId } = await params;
     const body = await request.json();
     
     const { nome, tipo, descricao, localizacao, regrasReserva } = body;
@@ -38,10 +38,10 @@ export async function PUT(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string, resourceId: string } }
+    { params }: { params: Promise<{ id: string, resourceId: string }> }
 ) {
-    const { resourceId } = params;
-    
+    const { resourceId } = await params;
+
     try {
         await prisma.recurso.delete({
             where: {
