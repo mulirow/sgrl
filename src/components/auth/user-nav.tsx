@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogIn, LogOut } from "lucide-react";
+import "./botaoGoogle.css"
 
 export function UserNav() {
     const { data: session, status } = useSession();
@@ -23,7 +24,7 @@ export function UserNav() {
 
     if (status === "unauthenticated" || !session) {
         return (
-            <Button variant="outline" onClick={() => signIn("google")}>
+            <Button className="botaoGoogle" variant="outline" onClick={() => signIn("google")}>
                 <LogIn className="mr-2 h-4 w-4" />
                 Entrar com Google
             </Button>
