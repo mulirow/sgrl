@@ -13,6 +13,27 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
+import { Combobox } from "./ui/combobox"
+import React from "react"
+
+const academic_centers = [
+    {
+        value: "cac",
+        label: "Centro de Artes e Comunicação",
+    },
+    {
+        value: "cin",
+        label: "Centro de Informática",
+    },
+    {
+        value: "ccen",
+        label: "Centro de Ciências Exatas e da Natureza",
+    },
+    {
+        value: "ccsa",
+        label: "Centro de Ciências Sociais Aplicadas",
+    },
+]
 
 interface EditLabDialogProps {
   lab: Lab
@@ -22,6 +43,8 @@ interface EditLabDialogProps {
 }
 
 export function EditLabDialog({ lab, open, onOpenChange, onLabUpdated }: EditLabDialogProps) {
+  const [selectedCenter, setSelectedCenter] = React.useState("")
+
   const [formData, setFormData] = useState({
     nome: lab.nome,
     descricao: lab.descricao,
@@ -38,7 +61,7 @@ export function EditLabDialog({ lab, open, onOpenChange, onLabUpdated }: EditLab
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
       const response = await fetch(`/api/labs/${lab.id}`, {
         method: 'PATCH',
@@ -95,15 +118,12 @@ export function EditLabDialog({ lab, open, onOpenChange, onLabUpdated }: EditLab
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="centroAcademico" className="text-right">
-                Centro Acadêmico
-              </Label>
-              <Input
-                id="centroAcademico"
-                name="centroAcademico"
-                value={formData.centroAcademico}
-                onChange={handleChange}
-                className="col-span-3"
+              <Label>Centro Acadêmico</Label>
+              <Combobox
+                options={academic_centers}
+                value={selectedCenter}
+                onChange={setSelectedCenter}
+                placeholder="Selecione o centro acadêmico"
               />
             </div>
           </div>

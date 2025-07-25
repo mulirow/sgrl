@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle } from "lucide-react"
 import { EditLabDialog } from "@/components/edit-lab-dialog"
+import { ResourcesDialog } from "@/components/resources-dialog"
 
 const academic_centers = [
     {
@@ -75,10 +76,11 @@ async function addLab(nome: string, descricao: string, centro_academico: string)
 }
 
 export default function ResourcesManagement() {
-    const [selected, setSelected] = React.useState("")
+    const [selectedCenter, setSelectedCenter] = React.useState("")
     const [labs, setLabs] = React.useState<Lab[]>([])
     const [isSubmitting, setIsSubmitting] = React.useState(false)
     const [editingLab, setEditingLab] = React.useState<Lab | null>(null)
+    const [resourcesDialogLab, setResourcesDialogLab] = React.useState<Lab | null>(null)
     const formRef = React.useRef<HTMLFormElement>(null)
 
     React.useEffect(() => {
@@ -104,18 +106,18 @@ export default function ResourcesManagement() {
         const nome = formData.get("name")?.toString().trim() || ""
         const descricao = formData.get("description")?.toString().trim() || ""
 
-        if (!nome || !descricao || !selected) {
+        if (!nome || !descricao || !selectedCenter) {
             console.warn("Todos os campos são obrigatórios.")
             setIsSubmitting(false)
             return
         }
 
         try {
-            await addLab(nome, descricao, selected)
+            await addLab(nome, descricao, selectedCenter)
             const updatedLabs = await fetchLabs()
             setLabs(updatedLabs)
             form.reset()
-            setSelected("")
+            setSelectedCenter("")
         } catch (error) {
             console.error("Error adding lab:", error)
         } finally {
@@ -125,6 +127,19 @@ export default function ResourcesManagement() {
 
     const handleEditClick = (lab: Lab) => {
         setEditingLab(lab)
+    }
+
+    const handleResourcesClick = (lab: Lab) => {
+        setResourcesDialogLab(lab)
+    }
+
+    const refreshLabs = async () => {
+        try {
+            const updatedLabs = await fetchLabs()
+            setLabs(updatedLabs)
+        } catch (error) {
+            console.error("Failed to refresh labs:", error)
+        }
     }
 
     return (
@@ -180,8 +195,8 @@ export default function ResourcesManagement() {
                                     <Label>Centro Acadêmico</Label>
                                     <Combobox
                                         options={academic_centers}
-                                        value={selected}
-                                        onChange={setSelected}
+                                        value={selectedCenter}
+                                        onChange={setSelectedCenter}
                                         placeholder="Selecione o centro acadêmico"
                                     />
                                 </div>
@@ -210,8 +225,9 @@ export default function ResourcesManagement() {
                 </CardHeader>
                 <CardContent>
                     <DataTable
-                        columns={columns(handleEditClick)}
+                        columns={columns(handleEditClick, refreshLabs, handleResourcesClick)}
                         data={labs}
+                        onRowClick={handleResourcesClick}
                     />
 
                     {editingLab && (
@@ -222,10 +238,20 @@ export default function ResourcesManagement() {
                                 if (!open) setEditingLab(null)
                             }}
                             onLabUpdated={(updatedLab) => {
-                                // Update the labs list after edit
                                 setLabs(labs.map(l => l.id === updatedLab.id ? updatedLab : l))
                                 setEditingLab(null)
                             }}
+                        />
+                    )}
+
+                    {resourcesDialogLab && (
+                        <ResourcesDialog
+                            open={!!resourcesDialogLab}
+                            onOpenChange={(open) => {
+                                if (!open) setResourcesDialogLab(null)
+                            }}
+                            id={resourcesDialogLab.id}
+                            labName={resourcesDialogLab.nome}
                         />
                     )}
                 </CardContent>

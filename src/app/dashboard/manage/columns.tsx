@@ -10,6 +10,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export type Lab = {
   id: string
@@ -37,7 +48,11 @@ const academic_centers = [
   },
 ]
 
-export const columns = (onEditClick: (lab: Lab) => void): ColumnDef<Lab>[] => [
+export const columns = (
+  onEditClick: (lab: Lab) => void, 
+  onDeleteSuccess?: () => void,
+  onResourcesClick?: (lab: Lab) => void
+): ColumnDef<Lab>[] => [
   {
     accessorKey: "nome",
     header: "Nome",
@@ -65,13 +80,18 @@ export const columns = (onEditClick: (lab: Lab) => void): ColumnDef<Lab>[] => [
           const response = await fetch(`/api/labs/${id}`, {
             method: 'DELETE'
           })
-          
+
           if (!response.ok) {
             throw new Error('Failed to delete lab')
           }
-          // You might want to refresh the data here or use a state update
+
+          // Call the success callback to refresh the table
+          if (onDeleteSuccess) {
+            onDeleteSuccess()
+          }
         } catch (error) {
           console.error('Error deleting lab:', error)
+          // You might want to show a toast notification here
         }
       }
 
@@ -88,9 +108,33 @@ export const columns = (onEditClick: (lab: Lab) => void): ColumnDef<Lab>[] => [
             <DropdownMenuItem onClick={() => onEditClick(lab)}>
               Editar laboratório
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(lab.id)}>
-              Excluir laboratório
-            </DropdownMenuItem>
+            {onResourcesClick && (
+              <DropdownMenuItem onClick={() => onResourcesClick(lab)}>
+                Ver recursos
+              </DropdownMenuItem>
+            )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Excluir laboratório
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Isso excluirá permanentemente o laboratório
+                    lab.nome e removerá seus dados de nossos servidores.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleDelete(lab.id)}>
+                    Continuar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       )
