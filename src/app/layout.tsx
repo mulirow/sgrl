@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./providers";
 import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+
 
 
 const geistSans = Geist({
@@ -25,6 +27,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+ 
+
+
   return (
     <html>
       <body
@@ -32,6 +38,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Header />
+          <Sidebar />
           {children}
         </AuthProvider>
       </body>
