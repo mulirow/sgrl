@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { CreateReservaSchema, type CreateReservaState } from '@/lib/validators';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export async function createReserva(
     prevState: CreateReservaState,
@@ -72,4 +73,36 @@ export async function createReserva(
     revalidatePath(`/recursos/${recursoId}`);
 
     return { success: true, message: 'Reserva solicitada com sucesso! Aguarde a aprovação.' };
+}
+
+export async function getMinhasReservas() {
+    noStore();
+
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return [];
+    }
+
+    try {
+        const reservas = await prisma.reserva.findMany({
+            where: {
+                usuarioId: session.user.id,
+            },
+            include: {
+                recurso: {
+                    select: {
+                        nome: true,
+                    },
+                },
+            },
+            orderBy: {
+                criadoEm: 'desc',
+            },
+        });
+        return reservas;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Falha ao buscar as reservas.');
+    }
 }
