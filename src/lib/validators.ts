@@ -1,6 +1,21 @@
 import { z } from 'zod';
 import { StatusRecurso } from '@prisma/client';
 
+export const LaboratorioSchema = z.object({
+    id: z.string().optional(),
+    nome: z.string().min(3, "O nome deve ter no mínimo 3 caracteres."),
+    descricao: z.string().min(10, "A descrição deve ter no mínimo 10 caracteres."),
+    centroAcademico: z.string().nonempty("O centro acadêmico é obrigatório."),
+    gerenteIds: z.array(z.string()).optional().default([]),
+    membroIds: z.array(z.string()).optional().default([]),
+});
+
+export type LaboratorioFormState = {
+    errors?: z.ZodIssue[];
+    message?: string;
+    success: boolean;
+};
+
 export const RecursoSchema = z.object({
     id: z.string().optional(),
     nome: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
