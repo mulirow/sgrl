@@ -15,9 +15,6 @@ export async function getReservasPendentesParaGestor() {
     }
 
     const laboratoriosGerenciados = session.user.laboratorioGerenteIds;
-    if (!laboratoriosGerenciados || laboratoriosGerenciados.length === 0) {
-        return { data: [] };
-    }
 
     try {
         const data = await prisma.reserva.findMany({
