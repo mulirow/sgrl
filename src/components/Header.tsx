@@ -1,5 +1,4 @@
 "use client";
-import './Header.css';
 import { usePathname } from 'next/navigation'; // Importa o hook para obter o caminho atual
 import { UserNav } from "./auth/user-nav";
 // fhfgh
@@ -12,8 +11,8 @@ export default function Header() {
   return (
     <>
       <header className="Header">
-        
-        <div className='container'> 
+
+        <div className='container'>
             <img
               src="/BrasaoUFPE.png"
               alt="Brasão Universidade Federal De Pernambuco"
