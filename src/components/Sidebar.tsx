@@ -27,15 +27,15 @@ interface SidebarItem {
 
 // Definindo os itens base fora dos components para evitar recriação desnecessária.
 const baseItems: SidebarItem[] = [
-  { id: 'dashboard'      , label: 'Dashboard'      , icon: Home         , path: '/'               , roles: ['user','manager'] },// user e manager
-  { id: 'calendar'       , label: 'Calendário'     , icon: Calendar     , path: '/calendar'       , roles: ['user','manager'] },// user e manager
+  { id: 'dashboard'      , label: 'Dashboard'      , icon: Home         , path: '/'               , roles: ['user','manager'] }, // user e manager
+  { id: 'calendar'       , label: 'Calendário'     , icon: Calendar     , path: '/calendar'       , roles: ['user','manager'] }, // user e manager
   { id: 'spaces'         , label: 'Espaços'        , icon: MapPin       , path: '/spaces'         , roles: ['user','manager'] }, // manager
-  { id: 'my-reservations', label: 'Minhas Reservas', icon: ClipboardList, path: '/my-reservations', roles: ['user','manager'] },// user 
-  { id: 'approvals'      , label: 'Aprovações'     , icon: ClipboardList, path: '/approvals'      , roles: ['user','manager'] },// manager
-  { id: 'users'          , label: 'Utilizadores'   , icon: Users        , path: '/users'          , roles: ['user','manager'] },// manager
-  { id: 'reports'        , label: 'Relatórios'     , icon: BarChart3    , path: '/reports'        , roles: ['user','manager'] },// manager
-  { id: 'documentation'  , label: 'Documentação'   , icon: FileText     , path: '/documentation'  , roles: ['user','manager'] },// user e manager
-  { id: 'settings'       , label: 'Definições'     , icon: Settings     , path: '/settings'       , roles: ['user','manager'] }// manager
+  { id: 'my-reservations', label: 'Minhas Reservas', icon: ClipboardList, path: '/my-reservations', roles: ['user','manager'] }, // user 
+  { id: 'approvals'      , label: 'Aprovações'     , icon: ClipboardList, path: '/approvals'      , roles: ['user','manager'] }, // manager
+  { id: 'users'          , label: 'Utilizadores'   , icon: Users        , path: '/users'          , roles: ['user','manager'] }, // manager
+  { id: 'reports'        , label: 'Relatórios'     , icon: BarChart3    , path: '/reports'        , roles: ['user','manager'] }, // manager
+  { id: 'documentation'  , label: 'Documentação'   , icon: FileText     , path: '/documentation'  , roles: ['user','manager'] }, // user e manager
+  { id: 'settings'       , label: 'Definições'     , icon: Settings     , path: '/settings'       , roles: ['user','manager'] }  // manager
 ];
 
 // Novo componente Sidebar que encapsula a lógica de filtragem e renderiza BotaoSidebar
