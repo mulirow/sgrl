@@ -6,7 +6,7 @@ import './botaoSidebar.css';
 interface SidebarItem {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className: string }>;
   path: string;
   roles?: ('user' | 'manager')[];
 }

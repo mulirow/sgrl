@@ -20,7 +20,7 @@ import { usePathname } from 'next/navigation'; // Importa o hook para obter o ca
 interface SidebarItem {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className: string }>;
   path: string;
   roles?: ('user' | 'manager')[];
 }
@@ -38,26 +38,7 @@ const baseItems: SidebarItem[] = [
   { id: 'settings'       , label: 'Definições'     , icon: Settings     , path: '/settings'       , roles: ['user','manager'] }  // manager
 ];
 
-// Novo componente Sidebar que encapsula a lógica de filtragem e renderiza BotaoSidebar
-interface SidebarProps {
-  userType: 'user' | 'manager';
-  activePath: string;
-}
 
-// export default function Sidebar({ userType, activePath }: SidebarProps) {
-//   // Lógica para filtrar os itens da sidebar com base no tipo de utilizador
-//   // Criar if para devolver a página se o usuário estiver logado
-//   const filteredItems = React.useMemo(() => {
-//     return baseItems.filter(item => item.roles?.includes(userType));
-//   }, [userType]);
-
-//   return (
-//     <aside className="Sidebar">
-//       {/* Passa a lista filtrada e o caminho ativo para o BotaoSidebar */}
-//       <BotaoSidebar lista={filteredItems} activePath={activePath} />
-//     </aside>
-//   );
-// }
 
 
 export default function Sidebar() {
