@@ -1,0 +1,38 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+.botaoSidebar {
+    display: flex; 
+    flex-direction: row;
+    border-radius: 10px;
+    align-items: center;
+    width: 80%;
+    height: 45px;
+    padding: 0;
+}
+
+.ativo{ 
+    background-color: rgba(211, 0, 0, 0.89);
+    color: white;
+} 
+
+.desativado { 
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(0, 0, 0);
+} 
+    
+.icone{
+    width: auto;
+    margin-left: 10px;
+    background-color: transparent;
+}
+
+.labelBotao{
+    margin-top: 1px;
+    font-weight: 600;
+    margin-left: 10px;
+}
