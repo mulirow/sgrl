@@ -1,10 +1,11 @@
 "use client"
 
 import { useTransition } from "react"
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table"
 import { Recurso, Laboratorio, StatusRecurso } from "@prisma/client"
 import { toast } from "sonner"
-import { MoreHorizontal, Trash2, Edit } from "lucide-react"
+import { MoreHorizontal, Trash2, Edit, Eye } from "lucide-react";
 
 import { deleteRecurso, getLaboratoriosParaForm } from "@/app/dashboard/recursos/actions"
 import { RecursoSheet } from "@/components/shared/recurso-sheet"
@@ -36,8 +37,17 @@ export type RecursoComLaboratorio = Recurso & {
 }
 
 function CellActions({ recurso, laboratorios }: { recurso: RecursoComLaboratorio, laboratorios: Awaited<ReturnType<typeof getLaboratoriosParaForm>> }) {
-    const [isPending, startTransition] = useTransition()
-    const handleDelete = () => { startTransition(async () => { const result = await deleteRecurso(recurso.id); if (result.success) { toast.success(result.message) } else { toast.error(result.message) } }) }
+    const [isPending, startTransition] = useTransition();
+    const handleDelete = () => {
+        startTransition(async () => {
+            const result = await deleteRecurso(recurso.id);
+            if (result.success) {
+                toast.success(result.message);
+            } else {
+                toast.error(result.message);
+            }
+        });
+    };
     return (
         <AlertDialog>
             <DropdownMenu>
@@ -50,11 +60,18 @@ function CellActions({ recurso, laboratorios }: { recurso: RecursoComLaboratorio
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Ações</DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href={`/recursos/${recurso.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Ver Agenda
+                        </Link>
+                    </DropdownMenuItem>
                     <RecursoSheet recurso={recurso} laboratorios={laboratorios}>
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                             <Edit className="mr-2 h-4 w-4" /> Editar
                         </DropdownMenuItem>
                     </RecursoSheet>
+                    <DropdownMenuSeparator />
                     <AlertDialogTrigger asChild>
                         <DropdownMenuItem className="text-red-600 focus:text-red-600">
                             <Trash2 className="mr-2 h-4 w-4" /> Excluir
@@ -73,18 +90,36 @@ function CellActions({ recurso, laboratorios }: { recurso: RecursoComLaboratorio
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    )
+    );
 }
 
 export const getColumns = (laboratorios: Awaited<ReturnType<typeof getLaboratoriosParaForm>>): ColumnDef<RecursoComLaboratorio>[] => [
-    { accessorKey: "nome", header: "Nome" },
+    {
+        accessorKey: "nome",
+        header: "Nome",
+        cell: ({ row }) => {
+            const recurso = row.original;
+            return (
+                <Link href={`/recursos/${recurso.id}`} className="font-medium text-primary hover:underline">
+                    {recurso.nome}
+                </Link>
+            );
+        }
+    },
     { accessorKey: "tipo", header: "Tipo" },
     { accessorKey: "laboratorio.nome", header: "Laboratório" },
     {
         accessorKey: "status", header: "Status", cell: ({ row }) => {
             const status = row.getValue("status") as StatusRecurso;
-            return <Badge variant={status === 'DISPONIVEL' ? 'success' : 'destructive'}>{status}</Badge>
+            return <Badge variant={status === 'DISPONIVEL' ? 'success' : 'destructive'}>{status}</Badge>;
         }
     },
-    { id: "actions", cell: ({ row }) => <CellActions recurso={row.original} laboratorios={laboratorios} /> },
-]
+    {
+        id: "actions",
+        cell: ({ row }) => (
+            <div className="text-right">
+                <CellActions recurso={row.original} laboratorios={laboratorios} />
+            </div>
+        )
+    },
+];
