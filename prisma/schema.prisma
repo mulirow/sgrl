@@ -125,14 +125,15 @@ model Laboratorio {
 model Recurso {
   id              String        @id @default(auto()) @map("_id") @db.ObjectId
   nome            String
-  tipo            String
   descricao       String
   localizacao     String
-  regrasReserva   Json          @map("regras_reserva")
+  regrasReserva   Json?         @map("regras_reserva")
   status          StatusRecurso @default(DISPONIVEL)
 
+  isWholeLab      Boolean       @default(false) @map("espaco_inteiro")
+
   laboratorioId   String        @db.ObjectId @map("id_laboratorio")
-  laboratorio     Laboratorio   @relation(fields: [laboratorioId], references: [id])
+  laboratorio     Laboratorio   @relation(fields: [laboratorioId], references: [id], onDelete: Cascade)
 
   criadoEm        DateTime      @default(now()) @map("criado_em")
   atualizadoEm    DateTime      @updatedAt @map("atualizado_em")
@@ -141,6 +142,7 @@ model Recurso {
   reservas        Reserva[]
   bloqueios       Bloqueio[]
 
+  @@unique([laboratorioId, nome])
   @@map("recursos")
 }
 
