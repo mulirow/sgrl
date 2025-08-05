@@ -106,7 +106,6 @@ export const getColumns = (laboratorios: Awaited<ReturnType<typeof getLaboratori
             );
         }
     },
-    { accessorKey: "tipo", header: "Tipo" },
     { accessorKey: "laboratorio.nome", header: "Laboratório" },
     {
         accessorKey: "status", header: "Status", cell: ({ row }) => {
