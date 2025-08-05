@@ -9,9 +9,9 @@ export async function PUT(
 ) {
     const { resourceId } = await params;
     const body = await request.json();
-    
-    const { nome, tipo, descricao, localizacao, regrasReserva } = body;
-    
+
+    const { nome, descricao, localizacao, regrasReserva } = body;
+
     try {
         const updatedResource = await prisma.recurso.update({
             where: {
@@ -19,7 +19,6 @@ export async function PUT(
             },
             data: {
                 nome,
-                tipo,
                 descricao,
                 localizacao,
                 regrasReserva
