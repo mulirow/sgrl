@@ -148,7 +148,7 @@ export async function deleteLaboratorio(labId: string) {
 
     } catch (error) {
         console.error("Erro ao excluir laboratório:", error);
-        return { success: false, message: error || "Erro inesperado no servidor ao excluir o laboratório." };
+        return { success: false, message: "Erro inesperado no servidor ao excluir o laboratório." };
     }
 
     revalidatePath('/admin/laboratorios');
