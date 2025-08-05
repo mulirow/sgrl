@@ -1,34 +1,35 @@
+import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { BookingForm } from '@/components/forms/BookingForm';
+import { UnifiedBookingForm } from '@/components/forms/UnifiedBookingForm';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { redirect } from 'next/navigation';
 
 export default async function NovaReservaPage() {
-    const recursos = await prisma.recurso.findMany({
-        where: {
-            status: 'DISPONIVEL'
-        },
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        redirect('/login');
+    }
+
+    const todosOsLaboratorios = await prisma.laboratorio.findMany({
         select: {
             id: true,
             nome: true,
-            laboratorio: {
-                select: {
-                    nome: true,
-                }
-            }
-        }
+        },
+        orderBy: { nome: 'asc' }
     });
 
     return (
         <div className="container mx-auto py-10">
-            <Card className="max-w-3xl mx-auto">
+            <Card className="max-w-4xl mx-auto">
                 <CardHeader>
                     <CardTitle className="text-2xl">Solicitar Nova Reserva</CardTitle>
                     <CardDescription>
-                        Preencha os detalhes abaixo para solicitar o uso de um recurso. Sua reserva ficará pendente até ser aprovada por um gestor.
+                        Selecione o laboratório e o recurso que deseja usar. Sua solicitação ficará pendente até a aprovação de um gestor.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <BookingForm recursos={recursos} />
+                    <UnifiedBookingForm laboratorios={todosOsLaboratorios} />
                 </CardContent>
             </Card>
         </div>
