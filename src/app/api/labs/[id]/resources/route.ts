@@ -8,7 +8,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const { id } = await params;
-    
+
     try {
         const resources = await prisma.recurso.findMany({
             where: {
@@ -32,14 +32,13 @@ export async function POST(
 ) {
     const { id } = await params;
     const body = await request.json();
-    
-    const { nome, tipo, descricao, localizacao, regrasReserva } = body;
-    
+
+    const { nome, descricao, localizacao, regrasReserva } = body;
+
     try {
         const newResource = await prisma.recurso.create({
             data: {
                 nome,
-                tipo,
                 descricao,
                 localizacao,
                 regrasReserva,

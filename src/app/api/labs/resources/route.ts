@@ -23,11 +23,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const body = await req.json()
     const { id } = await params
 
-    const { nome, tipo, descricao, localizacao, regrasReserva } = body
+    const { nome, descricao, localizacao, regrasReserva } = body
     const newResource = await prisma.recurso.create({
         data: {
             nome,
-            tipo,
             descricao,
             localizacao,
             regrasReserva,

@@ -47,15 +47,10 @@ export function RecursoForm({ recurso, laboratorios, onSuccess }: RecursoFormPro
         <form ref={formRef} action={dispatch} className="space-y-4">
             {isEditing && <input type="hidden" name="id" value={recurso.id} />}
 
-            <div className="space-y-1">
-                <Label htmlFor="nome">Nome do Recurso</Label>
-                <Input id="nome" name="nome" defaultValue={recurso?.nome} required />
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <Label htmlFor="tipo">Tipo</Label>
-                    <Input id="tipo" name="tipo" placeholder="Ex: Prensa, Sala, Computador" defaultValue={recurso?.tipo} required />
+                    <Label htmlFor="nome">Nome do Recurso</Label>
+                    <Input id="nome" name="nome" defaultValue={recurso?.nome} required />
                 </div>
                 <div className="space-y-1">
                     <Label htmlFor="laboratorioId">Laboratório</Label>

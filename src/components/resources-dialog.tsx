@@ -120,7 +120,7 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
 
   const handleEditResource = async (formData: ResourceFormData) => {
     if (!editingResource) return
-    
+
     setSubmitting(true)
     try {
       const response = await fetch(`/api/labs/${id}/resources/${editingResource.id}`, {
@@ -163,11 +163,11 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
     }
   }
 
-  const ResourceForm = ({ 
-    onSubmit, 
-    initialData, 
-    title, 
-    description 
+  const ResourceForm = ({
+    onSubmit,
+    initialData,
+    title,
+    description
   }: {
     onSubmit: (data: ResourceFormData) => void
     initialData?: Resource
@@ -254,8 +254,8 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             variant="outline"
             onClick={() => {
               setShowAddDialog(false)
@@ -291,7 +291,7 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
               </Button>
             </div>
           </DialogHeader>
-          
+
           <div className="overflow-auto">
             {loading ? (
               <div className="space-y-3">
@@ -345,7 +345,7 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
                               <Pencil className="h-4 w-4 mr-2" />
                               Editar
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => setDeletingResource(resource)}
                               className="text-destructive"
                             >
@@ -362,8 +362,8 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <p>Nenhum recurso encontrado para este laboratório.</p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="mt-4"
                   onClick={() => setShowAddDialog(true)}
                 >
@@ -400,8 +400,8 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog 
-        open={!!deletingResource} 
+      <AlertDialog
+        open={!!deletingResource}
         onOpenChange={(open: boolean) => !open && setDeletingResource(null)}
       >
         <AlertDialogContent>
@@ -414,7 +414,7 @@ export function ResourcesDialog({ open, onOpenChange, id, labName }: ResourcesDi
           </AlertDialogHeader>
           <AlertDialogFooter>
         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-        <AlertDialogAction 
+        <AlertDialogAction
           onClick={() => deletingResource && handleDeleteResource(deletingResource.id)}
           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
         >
