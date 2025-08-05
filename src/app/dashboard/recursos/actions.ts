@@ -11,8 +11,12 @@ export async function upsertRecurso(
     formData: FormData
 ): Promise<RecursoFormState> {
     const session = await auth();
-    if (!session?.user || (session.user.perfil !== Perfil.GESTOR && session.user.perfil !== Perfil.ADMIN)) {
-        return { success: false, message: "Acesso negado." };
+    if (!session?.user?.id) {
+        return { success: false, message: "Acesso negado: você não está autenticado." };
+    }
+
+    if (session.user.perfil !== Perfil.GESTOR && session.user.perfil !== Perfil.ADMIN) {
+        return { success: false, message: "Acesso negado: permissão insuficiente." };
     }
 
     const validatedFields = RecursoSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -26,9 +30,15 @@ export async function upsertRecurso(
     const { id, laboratorioId, regrasReserva, ...data } = validatedFields.data;
 
     try {
-        const isGestorDoLab = session.user.laboratorioGerenteIds.includes(laboratorioId);
-        if (session.user.perfil === Perfil.GESTOR && !isGestorDoLab) {
-            return { success: false, message: "Você não tem permissão para gerenciar recursos neste laboratório." };
+        if (session.user.perfil === Perfil.GESTOR) {
+            const userWithPermissions = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { laboratorioGerenteIds: true }
+            });
+
+            if (!userWithPermissions?.laboratorioGerenteIds.includes(laboratorioId)) {
+                return { success: false, message: "Você não tem permissão para gerenciar recursos neste laboratório." };
+            }
         }
 
         const dataPayload: Prisma.RecursoUncheckedUpdateInput = {
@@ -38,6 +48,8 @@ export async function upsertRecurso(
 
         if (regrasReserva && regrasReserva.trim()) {
             dataPayload.regrasReserva = { content: regrasReserva };
+        } else {
+            dataPayload.regrasReserva = null;
         }
 
         if (id) {
@@ -56,8 +68,12 @@ export async function upsertRecurso(
 
 export async function deleteRecurso(recursoId: string) {
     const session = await auth();
-    if (!session?.user || (session.user.perfil !== Perfil.GESTOR && session.user.perfil !== Perfil.ADMIN)) {
-        return { success: false, message: "Acesso negado." };
+    if (!session?.user?.id) {
+        return { success: false, message: "Acesso negado: você não está autenticado." };
+    }
+
+    if (session.user.perfil !== Perfil.GESTOR && session.user.perfil !== Perfil.ADMIN) {
+        return { success: false, message: "Acesso negado: permissão insuficiente." };
     }
 
     try {
@@ -66,20 +82,32 @@ export async function deleteRecurso(recursoId: string) {
             return { success: false, message: "Recurso não encontrado." };
         }
 
-        if (session.user.perfil === Perfil.GESTOR && !session.user.laboratorioGerenteIds.includes(recurso.laboratorioId)) {
-            return { success: false, message: "Você não tem permissão para excluir este recurso." };
+        if (session.user.perfil === Perfil.GESTOR) {
+            const userWithPermissions = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { laboratorioGerenteIds: true }
+            });
+
+            if (!userWithPermissions?.laboratorioGerenteIds.includes(recurso.laboratorioId)) {
+                return { success: false, message: "Você não tem permissão para excluir este recurso." };
+            }
         }
 
         const hasActiveReservations = await prisma.reserva.findFirst({
             where: {
                 recursoId: recursoId,
-                status: { in: [StatusReserva.APROVADA, StatusReserva.PENDENTE, StatusReserva.EM_USO] },
-                fim: { gte: new Date() },
+                OR: [
+                    { status: StatusReserva.PENDENTE },
+                    {
+                        status: { in: [StatusReserva.APROVADA, StatusReserva.EM_USO] },
+                        fim: { gte: new Date() },
+                    },
+                ],
             },
         });
 
         if (hasActiveReservations) {
-            return { success: false, message: "Não é possível excluir. Existem reservas ativas ou futuras para este recurso." };
+            return { success: false, message: "Não é possível excluir. Existem reservas pendentes, ativas ou futuras para este recurso." };
         }
 
         await prisma.recurso.delete({ where: { id: recursoId } });
@@ -94,16 +122,32 @@ export async function deleteRecurso(recursoId: string) {
 
 export async function getRecursosDoGestor() {
     const session = await auth();
-    if (!session?.user || (session.user.perfil !== Perfil.GESTOR && session.user.perfil !== Perfil.ADMIN)) {
-        throw new Error('Acesso negado');
+    if (!session?.user?.id) {
+        throw new Error('Acesso negado: não autenticado.');
     }
 
-    const whereClause = session.user.perfil === Perfil.ADMIN
-        ? {}
-        : { laboratorioId: { in: session.user.laboratorioGerenteIds } };
+    if (session.user.perfil !== Perfil.GESTOR && session.user.perfil !== Perfil.ADMIN) {
+        throw new Error('Acesso negado: permissão insuficiente.');
+    }
+
+    if (session.user.perfil === Perfil.ADMIN) {
+        return prisma.recurso.findMany({
+            include: { laboratorio: { select: { nome: true } } },
+            orderBy: { nome: 'asc' },
+        });
+    }
+
+    const userWithPermissions = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { laboratorioGerenteIds: true }
+    });
+
+    if (!userWithPermissions || userWithPermissions.laboratorioGerenteIds.length === 0) {
+        return [];
+    }
 
     return prisma.recurso.findMany({
-        where: whereClause,
+        where: { laboratorioId: { in: userWithPermissions.laboratorioGerenteIds } },
         include: { laboratorio: { select: { nome: true } } },
         orderBy: { nome: 'asc' },
     });
@@ -111,14 +155,28 @@ export async function getRecursosDoGestor() {
 
 export async function getLaboratoriosParaForm() {
     const session = await auth();
-    if (!session?.user) throw new Error('Acesso negado');
+    if (!session?.user?.id) {
+        throw new Error('Acesso negado: não autenticado');
+    }
 
-    const whereClause = session.user.perfil === Perfil.ADMIN
-        ? {}
-        : { id: { in: session.user.laboratorioGerenteIds } };
+    if (session.user.perfil === Perfil.ADMIN) {
+        return prisma.laboratorio.findMany({
+            select: { id: true, nome: true },
+            orderBy: { nome: 'asc' }
+        });
+    }
+
+    const userWithPermissions = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { laboratorioGerenteIds: true }
+    });
+
+    if (!userWithPermissions || userWithPermissions.laboratorioGerenteIds.length === 0) {
+        return [];
+    }
 
     return prisma.laboratorio.findMany({
-        where: whereClause,
+        where: { id: { in: userWithPermissions.laboratorioGerenteIds } },
         select: { id: true, nome: true },
         orderBy: { nome: 'asc' }
     });
