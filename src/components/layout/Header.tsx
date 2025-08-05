@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MainNav } from './MainNav';
 import { UserMenu } from './UserMenu';
 import { MobileNav } from './MobileNav';
+import { ThemeToggle } from './ThemeToggle';
 import { Boxes } from 'lucide-react';
 
 export async function Header() {
@@ -22,6 +23,7 @@ export async function Header() {
                 </div>
 
                 <div className="flex flex-1 items-center justify-end space-x-4">
+                    <ThemeToggle />
                     <UserMenu user={session?.user} />
                 </div>
             </div>
