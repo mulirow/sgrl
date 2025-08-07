@@ -1,19 +1,29 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
+import { ChangeEvent } from 'react';
 
-interface TimePickerProps {
+interface FieldProps {
+    name: string;
     value?: string;
-    onChange: (time: string) => void;
+    onChange: (value: string) => void;
+    onBlur: () => void;
+    ref: (instance: HTMLInputElement | null) => void;
 }
 
-export function TimePicker({ value, onChange }: TimePickerProps) {
+export function TimePicker(props: FieldProps) {
+    const { onChange, ...rest } = props;
+
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+        onChange(event.target.value);
+    };
+
     return (
         <Input
             type="time"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
             step="60"
+            {...rest}
+            onChange={handleChange}
         />
     );
 }
