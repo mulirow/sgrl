@@ -8,35 +8,39 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 
 interface DatePickerProps {
-    value?: Date;
-    onChange: (date?: Date) => void;
     disabled?: (date: Date) => boolean;
 }
 
-export function DatePicker({ value, onChange, disabled }: DatePickerProps) {
+interface FieldProps {
+    name: string;
+    value?: Date;
+    onChange: (value?: Date) => void;
+}
+
+export function DatePicker({ disabled, name, value, onChange }: DatePickerProps & FieldProps) {
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !value && 'text-muted-foreground'
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {value ? format(value, 'PPP') : <span>Escolha uma data</span>}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-                <Calendar
-                    mode="single"
-                    selected={value}
-                    onSelect={onChange}
-                    disabled={disabled}
-                    autoFocus
-                />
-            </PopoverContent>
-        </Popover>
+        <>
+            {name && value && <input type="hidden" name={name} value={value.toISOString()} />}
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant={'outline'}
+                        className={cn('w-full justify-start text-left font-normal', !value && 'text-muted-foreground')}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {value ? format(value, 'PPP') : <span>Escolha uma data</span>}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                    <Calendar
+                        mode="single"
+                        selected={value}
+                        onSelect={onChange}
+                        disabled={disabled}
+                        autoFocus
+                    />
+                </PopoverContent>
+            </Popover>
+        </>
     );
 }
