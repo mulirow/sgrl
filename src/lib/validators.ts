@@ -32,6 +32,19 @@ export type RecursoFormState = {
     success: boolean;
 };
 
+export const BookingFormSchema = z.object({
+    recursoId: z.string().nonempty({ message: "Selecione um recurso." }),
+    justificativa: z.string().min(10, { message: "A justificativa deve ter no mínimo 10 caracteres." }),
+    data: z.date({ error: "A data da reserva é obrigatória." }),
+    horaInicio: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido."),
+    horaFim: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido."),
+}).refine(data => {
+    return data.horaFim > data.horaInicio;
+}, {
+    message: "O horário de fim deve ser posterior ao horário de início.",
+    path: ["horaFim"],
+});
+
 export const CreateReservaSchema = z.object({
     recursoId: z.string().nonempty({ message: "Selecione um recurso." }),
     justificativa: z.string().min(10, { message: "A justificativa deve ter no mínimo 10 caracteres." }),

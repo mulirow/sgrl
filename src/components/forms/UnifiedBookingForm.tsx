@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState, useEffect } from 'react';
+import { useActionState, useState, useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,12 +8,13 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 import { type RecursoParaForm } from '@/app/api/laboratorios/[labId]/recursos/route';
-import { CreateReservaSchema } from '@/lib/validators';
+import { BookingFormSchema, type CreateReservaState } from '@/lib/validators';
 import { createReserva } from '@/app/reservas/actions';
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
@@ -21,24 +22,43 @@ interface UnifiedBookingFormProps {
     laboratorios: { id: string; nome: string }[];
 }
 
-type FormValues = z.infer<typeof CreateReservaSchema>;
+type FormValues = z.infer<typeof BookingFormSchema>;
 
 export function UnifiedBookingForm({ laboratorios }: UnifiedBookingFormProps) {
     const [selectedLabId, setSelectedLabId] = useState('');
     const [recursos, setRecursos] = useState<RecursoParaForm[]>([]);
     const [isLoadingRecursos, setIsLoadingRecursos] = useState(false);
 
+    const [isPending, startTransition] = useTransition();
+
     const form = useForm<FormValues>({
-        resolver: zodResolver(CreateReservaSchema),
+        resolver: zodResolver(BookingFormSchema),
         defaultValues: {
             recursoId: '',
             justificativa: '',
-            inicio: undefined,
-            fim: undefined,
+            data: undefined,
+            horaInicio: '00:00',
+            horaFim: '00:00',
         },
     });
 
-    const [state, formAction] = useActionState(createReserva, { success: false });
+    const [state, formAction] = useActionState<CreateReservaState, FormData>(createReserva, { success: false });
+
+    const handleFormSubmit = (data: FormValues) => {
+        const formData = new FormData();
+
+        formData.append('recursoId', data.recursoId);
+        formData.append('justificativa', data.justificativa);
+        if (data.data) {
+            formData.append('data', data.data.toISOString());
+        }
+        formData.append('horaInicio', data.horaInicio);
+        formData.append('horaFim', data.horaFim);
+
+        startTransition(() => {
+            formAction(formData);
+        });
+    };
 
     useEffect(() => {
         if (state.success) {
@@ -47,9 +67,7 @@ export function UnifiedBookingForm({ laboratorios }: UnifiedBookingFormProps) {
             setSelectedLabId('');
             setRecursos([]);
         } else if (state.message) {
-            toast.error(state.message, {
-                description: state.errors?.geral?.[0]
-            });
+            toast.error(state.message);
         }
     }, [state, form]);
 
@@ -82,7 +100,7 @@ export function UnifiedBookingForm({ laboratorios }: UnifiedBookingFormProps) {
 
     return (
         <Form {...form}>
-            <form action={formAction} className="space-y-8">
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormItem>
                         <FormLabel>1. Selecione o Laboratório</FormLabel>
@@ -130,35 +148,36 @@ export function UnifiedBookingForm({ laboratorios }: UnifiedBookingFormProps) {
                     />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                         control={form.control}
-                        name="inicio"
+                        name="data"
                         render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormControl>
-                                    <DateTimePicker
-                                        label="Início da Reserva"
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                </FormControl>
+                            <FormItem className="flex flex-col md:col-span-1">
+                                <FormLabel>Data da Reserva</FormLabel>
+                                <DatePicker value={field.value} onChange={field.onChange} />
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                     <FormField
                         control={form.control}
-                        name="fim"
+                        name="horaInicio"
                         render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormControl>
-                                    <DateTimePicker
-                                        label="Fim da Reserva"
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                </FormControl>
+                            <FormItem className="flex flex-col md:col-span-1">
+                                <FormLabel>Horário de Início</FormLabel>
+                                <TimePicker value={field.value} onChange={field.onChange} />
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="horaFim"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col md:col-span-1">
+                                <FormLabel>Horário de Fim</FormLabel>
+                                <TimePicker value={field.value} onChange={field.onChange} />
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -182,8 +201,8 @@ export function UnifiedBookingForm({ laboratorios }: UnifiedBookingFormProps) {
                     )}
                 />
 
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Button type="submit" disabled={isPending}>
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Solicitar Reserva
                 </Button>
             </form>
