@@ -50,14 +50,32 @@ export async function upsertLaboratorio(
         return { success: false, errors: validatedFields.error.issues, message: "Erro de validação." };
     }
 
-    const { id, nome, ...labData } = validatedFields.data;
+    const { id, nome, gerenteIds: novosGerenteIds, membroIds: novosMembroIds, ...labData } = validatedFields.data;
 
     try {
-        if (id) {
-            await prisma.laboratorio.update({ where: { id }, data: { nome, ...labData } });
-        } else {
-            await prisma.$transaction(async (tx) => {
-                const novoLaboratorio = await tx.laboratorio.create({ data: { nome, ...labData } });
+        await prisma.$transaction(async (tx) => {
+            let laboratorioId = id;
+            let gerentesAntigos: string[] = [];
+            let membrosAntigos: string[] = [];
+
+            if (id) {
+                // MODO DE ATUALIZAÇÃO
+                const laboratorioExistente = await tx.laboratorio.findUnique({ where: { id } });
+                if (!laboratorioExistente) throw new Error("Laboratório não encontrado para atualização.");
+
+                gerentesAntigos = laboratorioExistente.gerenteIds;
+                membrosAntigos = laboratorioExistente.membroIds;
+
+                await tx.laboratorio.update({
+                    where: { id },
+                    data: { nome, gerenteIds: novosGerenteIds, membroIds: novosMembroIds, ...labData },
+                });
+            } else {
+                // MODO DE CRIAÇÃO
+                const novoLaboratorio = await tx.laboratorio.create({
+                    data: { nome, gerenteIds: novosGerenteIds, membroIds: novosMembroIds, ...labData },
+                });
+                laboratorioId = novoLaboratorio.id;
 
                 await tx.recurso.create({
                     data: {
@@ -69,14 +87,55 @@ export async function upsertLaboratorio(
                         status: 'DISPONIVEL',
                     },
                 });
-            });
-        }
+            }
+
+            if (!laboratorioId) throw new Error("ID do laboratório não está definido.");
+
+            const gerentesRemovidos = gerentesAntigos.filter(uid => !novosGerenteIds.includes(uid));
+            if (gerentesRemovidos.length > 0) {
+                const usersToUpdate = await tx.user.findMany({ where: { id: { in: gerentesRemovidos } } });
+                for (const user of usersToUpdate) {
+                    await tx.user.update({
+                        where: { id: user.id },
+                        data: { laboratorioGerenteIds: { set: user.laboratorioGerenteIds.filter(labId => labId !== laboratorioId) } }
+                    });
+                }
+            }
+
+            const membrosRemovidos = membrosAntigos.filter(uid => !novosMembroIds.includes(uid));
+            if (membrosRemovidos.length > 0) {
+                const usersToUpdate = await tx.user.findMany({ where: { id: { in: membrosRemovidos } } });
+                for (const user of usersToUpdate) {
+                    await tx.user.update({
+                        where: { id: user.id },
+                        data: { laboratorioMembroIds: { set: user.laboratorioMembroIds.filter(labId => labId !== laboratorioId) } }
+                    });
+                }
+            }
+
+            const gerentesAdicionados = novosGerenteIds.filter(uid => !gerentesAntigos.includes(uid));
+            if (gerentesAdicionados.length > 0) {
+                await tx.user.updateMany({
+                    where: { id: { in: gerentesAdicionados } },
+                    data: { laboratorioGerenteIds: { push: laboratorioId } }
+                });
+            }
+
+            const membrosAdicionados = novosMembroIds.filter(uid => !membrosAntigos.includes(uid));
+            if (membrosAdicionados.length > 0) {
+                await tx.user.updateMany({
+                    where: { id: { in: membrosAdicionados } },
+                    data: { laboratorioMembroIds: { push: laboratorioId } }
+                });
+            }
+        });
     } catch (error) {
         console.error(error);
         return { success: false, message: "Erro no servidor ao salvar o laboratório." };
     }
 
     revalidatePath('/admin/laboratorios');
+    revalidatePath('/perfil');
     return { success: true, message: `Laboratório ${id ? 'atualizado' : 'criado'} com sucesso!` };
 }
 
