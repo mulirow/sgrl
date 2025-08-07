@@ -44,7 +44,7 @@ export async function GET(
                 inicio: true,
                 fim: true,
                 status: true,
-                usuario: { select: { name: true } },
+                justificativa: true,
             },
         });
 
@@ -60,7 +60,7 @@ export async function GET(
         const events = [
             ...reservas.map(r => ({
                 id: `reserva-${r.id}`,
-                title: `Reserva - ${r.usuario?.name || 'Usuário desconhecido'}`,
+                title: r.justificativa || `Reserva (${r.status.toLowerCase()})`,
                 start: r.inicio.toISOString(),
                 end: r.fim.toISOString(),
                 type: 'RESERVA',
