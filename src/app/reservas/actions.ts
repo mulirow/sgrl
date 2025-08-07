@@ -16,11 +16,33 @@ export async function createReserva(
         return { success: false, message: 'Erro de autenticação. Faça login novamente.' };
     }
 
-    const validatedFields = CreateReservaSchema.safeParse({
+    const rawData = {
         recursoId: formData.get('recursoId'),
         justificativa: formData.get('justificativa'),
-        inicio: formData.get('inicio'),
-        fim: formData.get('fim'),
+        data: formData.get('data'),
+        horaInicio: formData.get('horaInicio'),
+        horaFim: formData.get('horaFim'),
+    };
+
+    if (!rawData.data || !rawData.horaInicio || !rawData.horaFim) {
+        return { success: false, message: 'Dados de data e hora inválidos.' };
+    }
+
+    const dataReserva = new Date(rawData.data as string);
+
+    const [startHours, startMinutes] = (rawData.horaInicio as string).split(':').map(Number);
+    const inicio = new Date(dataReserva);
+    inicio.setHours(startHours, startMinutes, 0, 0);
+
+    const [endHours, endMinutes] = (rawData.horaFim as string).split(':').map(Number);
+    const fim = new Date(dataReserva);
+    fim.setHours(endHours, endMinutes, 0, 0);
+
+    const validatedFields = CreateReservaSchema.safeParse({
+        recursoId: rawData.recursoId,
+        justificativa: rawData.justificativa,
+        inicio: inicio,
+        fim: fim,
     });
 
     if (!validatedFields.success) {
@@ -31,7 +53,7 @@ export async function createReserva(
         };
     }
 
-    const { recursoId, inicio, fim, justificativa } = validatedFields.data;
+    const { recursoId, justificativa } = validatedFields.data;
     const usuarioId = session.user.id;
 
     try {
