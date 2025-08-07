@@ -15,7 +15,7 @@ export async function Header() {
                 <MobileNav userPerfil={session?.user?.perfil} />
 
                 <div className="mr-4 hidden md:flex">
-                    <Link href="/reservas" className="mr-6 flex items-center space-x-2">
+                    <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
                         <Boxes className="h-6 w-6" />
                         <span className="font-bold">SGRL</span>
                     </Link>
