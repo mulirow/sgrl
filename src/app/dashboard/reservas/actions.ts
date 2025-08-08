@@ -14,21 +14,47 @@ export async function getReservasPendentesParaGestor() {
         return { error: "Acesso negado." };
     }
 
-    const laboratoriosGerenciados = session.user.laboratorioGerenteIds;
+    const userWithPermissions = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { laboratorioGerenteIds: true }
+    });
+
+    const laboratoriosGerenciados = userWithPermissions?.laboratorioGerenteIds || [];
+
+    const whereClause = session.user.perfil === Perfil.ADMIN
+        ? { status: StatusReserva.PENDENTE }
+        : {
+            status: StatusReserva.PENDENTE,
+            recurso: {
+                laboratorioId: {
+                    in: laboratoriosGerenciados,
+                },
+            },
+        };
 
     try {
         const data = await prisma.reserva.findMany({
-            where: {
-                status: StatusReserva.PENDENTE,
+            where: whereClause,
+            select: {
+                id: true,
+                inicio: true,
+                fim: true,
+                status: true,
+                justificativa: true,
                 recurso: {
-                    laboratorioId: {
-                        in: laboratoriosGerenciados,
-                    },
+                    select: {
+                        nome: true,
+                        laboratorio: {
+                            select: { nome: true }
+                        }
+                    }
                 },
-            },
-            include: {
-                recurso: { select: { nome: true } },
-                usuario: { select: { name: true, email: true } },
+                usuario: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                },
             },
             orderBy: { criadoEm: 'asc' },
         });
