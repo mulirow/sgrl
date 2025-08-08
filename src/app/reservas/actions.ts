@@ -6,6 +6,8 @@ import prisma from '@/lib/prisma';
 import { CreateReservaSchema, type CreateReservaState } from '@/lib/validators';
 import { unstable_noStore as noStore } from 'next/cache';
 
+const TIMEZONE_OFFSET = '-03:00';
+
 export async function createReserva(
     prevState: CreateReservaState,
     formData: FormData
@@ -28,15 +30,15 @@ export async function createReserva(
         return { success: false, message: 'Dados de data e hora inválidos.' };
     }
 
-    const dataReserva = new Date(rawData.data as string);
+    const dateString = rawData.data as string;
+    const timeInicioString = rawData.horaInicio as string;
+    const timeFimString = rawData.horaFim as string;
 
-    const [startHours, startMinutes] = (rawData.horaInicio as string).split(':').map(Number);
-    const inicio = new Date(dataReserva);
-    inicio.setHours(startHours, startMinutes, 0, 0);
+    const inicioLocalISOString = `${dateString}T${timeInicioString}:00${TIMEZONE_OFFSET}`;
+    const fimLocalISOString = `${dateString}T${timeFimString}:00${TIMEZONE_OFFSET}`;
 
-    const [endHours, endMinutes] = (rawData.horaFim as string).split(':').map(Number);
-    const fim = new Date(dataReserva);
-    fim.setHours(endHours, endMinutes, 0, 0);
+    const inicio = new Date(inicioLocalISOString);
+    const fim = new Date(fimLocalISOString);
 
     const validatedFields = CreateReservaSchema.safeParse({
         recursoId: rawData.recursoId,

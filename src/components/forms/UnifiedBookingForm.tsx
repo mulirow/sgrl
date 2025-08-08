@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { startOfWeek, endOfWeek } from 'date-fns';
+import { startOfWeek, endOfWeek, format } from 'date-fns';
 
 import { type RecursoParaForm } from '@/app/api/laboratorios/[labId]/recursos/route';
 import { type CalendarEvent } from '@/app/api/recursos/[resourceId]/eventos/route';
@@ -58,7 +58,7 @@ export function UnifiedBookingForm({ laboratorios }: UnifiedBookingFormProps) {
         formData.append('recursoId', data.recursoId);
         formData.append('justificativa', data.justificativa);
         if (data.data) {
-            formData.append('data', data.data.toISOString());
+            formData.append('data', format(data.data, 'yyyy-MM-dd'));
         }
         formData.append('horaInicio', data.horaInicio);
         formData.append('horaFim', data.horaFim);
