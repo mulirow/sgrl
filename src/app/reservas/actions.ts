@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { CreateReservaSchema, type CreateReservaState } from '@/lib/validators';
 import { unstable_noStore as noStore } from 'next/cache';
+import { StatusReserva } from '@prisma/client';
 
 const TIMEZONE_OFFSET = '-03:00';
 
@@ -129,4 +130,58 @@ export async function getMinhasReservas() {
         console.error('Database Error:', error);
         throw new Error('Falha ao buscar as reservas.');
     }
+}
+
+export async function cancelarMinhaReserva(reservaId: string) {
+    noStore();
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return { success: false, message: 'Acesso negado: você não está autenticado.' };
+    }
+
+    try {
+        const reserva = await prisma.reserva.findUnique({
+            where: { id: reservaId },
+        });
+
+        if (!reserva) {
+            return { success: false, message: 'Reserva não encontrada.' };
+        }
+
+        if (reserva.usuarioId !== session.user.id) {
+            return { success: false, message: 'Acesso negado: você não tem permissão para cancelar esta reserva.' };
+        }
+
+        const cancellableStatuses: StatusReserva[] = [
+            StatusReserva.PENDENTE,
+            StatusReserva.APROVADA,
+            StatusReserva.EM_USO
+        ];
+
+        const canBeCancelled = cancellableStatuses.includes(reserva.status);
+
+        if (!canBeCancelled) {
+            return { success: false, message: `Não é possível cancelar uma reserva com status "${reserva.status}".` };
+        }
+
+        if (reserva.fim < new Date() && reserva.status !== StatusReserva.PENDENTE) {
+            return { success: false, message: 'Não é possível cancelar uma reserva que já foi concluída no passado.' };
+        }
+
+        await prisma.reserva.update({
+            where: { id: reservaId },
+            data: { status: StatusReserva.CANCELADA },
+        });
+
+    } catch (error) {
+        console.error("Erro ao cancelar reserva:", error);
+        return { success: false, message: 'Erro no servidor. Não foi possível cancelar a reserva.' };
+    }
+
+    revalidatePath('/reservas');
+    revalidatePath('/dashboard/reservas');
+    revalidatePath('/dashboard');
+
+    return { success: true, message: 'Reserva cancelada com sucesso.' };
 }
