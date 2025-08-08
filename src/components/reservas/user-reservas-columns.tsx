@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { cancelarMinhaReserva } from "@/app/reservas/actions"
 
 export type ReservaComRecurso = Prisma.ReservaGetPayload<{
-    include: { recurso: { select: { nome: true } } };
+    include: { recurso: { select: { nome: true, laboratorio: { select: { nome: true } } } } };
 }>;
 
 const statusVariantMap: Record<StatusReserva, "default" | "secondary" | "destructive" | "success"> = {
@@ -94,6 +94,10 @@ export const columns: ColumnDef<ReservaComRecurso>[] = [
         id: "recursoNome",
         accessorFn: row => row.recurso.nome,
         header: "Recurso",
+    },
+    {
+        accessorKey: "recurso.laboratorio.nome",
+        header: "Laboratório",
     },
     {
         accessorKey: "inicio",

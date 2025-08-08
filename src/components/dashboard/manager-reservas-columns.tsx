@@ -1,18 +1,20 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Reserva, Recurso, User, StatusReserva } from "@prisma/client"
+import { Prisma, StatusReserva } from "@prisma/client" // Importar Prisma
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, CheckCircle, XCircle } from "lucide-react"
+import { MoreHorizontal, CheckCircle, XCircle, Loader2 } from "lucide-react"
 import { updateReservaStatus } from "@/app/dashboard/reservas/actions"
 import { toast } from "sonner"
 import { useTransition } from "react"
 
-export type ReservaPendente = Reserva & {
-    recurso: Pick<Recurso, 'nome'>;
-    usuario: Pick<User, 'name' | 'email'>;
-}
+export type ReservaPendente = Prisma.ReservaGetPayload<{
+    include: {
+        recurso: { select: { nome: true, laboratorio: { select: { nome: true } } } },
+        usuario: { select: { name: true, email: true } },
+    }
+}>;
 
 function RowActions({ reserva }: { reserva: ReservaPendente }) {
     const [isPending, startTransition] = useTransition();
@@ -34,7 +36,7 @@ function RowActions({ reserva }: { reserva: ReservaPendente }) {
                 <Button variant="ghost" className="h-8 w-8 p-0" disabled={isPending}>
                     <span className="sr-only">Abrir menu</span>
                     {isPending ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                        <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                         <MoreHorizontal className="h-4 w-4" />
                     )}
@@ -70,8 +72,11 @@ export const columns: ColumnDef<ReservaPendente>[] = [
         header: "Recurso",
     },
     {
-        id: "usuarioNome",
-        accessorFn: row => row.usuario.name,
+        accessorKey: "recurso.laboratorio.nome",
+        header: "Laboratório",
+    },
+    {
+        accessorKey: "usuario.name",
         header: "Usuário",
         cell: ({ row }) => {
             const usuario = row.original.usuario;
@@ -81,16 +86,15 @@ export const columns: ColumnDef<ReservaPendente>[] = [
     {
         accessorKey: "inicio",
         header: "Início",
-        cell: ({ row }) => new Date(row.getValue("inicio")).toLocaleString('pt-BR'),
+        cell: ({ row }) => new Date(row.getValue("inicio")).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }),
     },
     {
         accessorKey: "fim",
         header: "Fim",
-        cell: ({ row }) => new Date(row.getValue("fim")).toLocaleString('pt-BR'),
+        cell: ({ row }) => new Date(row.getValue("fim")).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }),
     },
     {
         id: "actions",
-        // A função `cell` agora simplesmente renderiza nosso novo componente.
         cell: ({ row }) => <RowActions reserva={row.original} />,
     },
 ]
