@@ -27,7 +27,14 @@ export async function getReservasPendentesParaGestor() {
                 },
             },
             include: {
-                recurso: { select: { nome: true } },
+                recurso: {
+                    select: {
+                        nome: true,
+                        laboratorio: {
+                            select: { nome: true }
+                        }
+                    }
+                },
                 usuario: { select: { name: true, email: true } },
             },
             orderBy: { criadoEm: 'asc' },

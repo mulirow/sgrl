@@ -118,6 +118,9 @@ export async function getMinhasReservas() {
                 recurso: {
                     select: {
                         nome: true,
+                        laboratorio: {
+                            select: { nome: true }
+                        }
                     },
                 },
             },
