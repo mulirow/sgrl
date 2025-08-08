@@ -18,6 +18,12 @@ interface FieldProps {
 }
 
 export function DatePicker({ disabled, name, value, onChange }: DatePickerProps & FieldProps) {
+    const handleSelect = (day: Date | undefined) => {
+        if (day !== undefined) {
+            onChange(day);
+        }
+    };
+
     return (
         <>
             {name && value && <input type="hidden" name={name} value={value.toISOString()} />}
@@ -35,7 +41,7 @@ export function DatePicker({ disabled, name, value, onChange }: DatePickerProps 
                     <Calendar
                         mode="single"
                         selected={value}
-                        onSelect={onChange}
+                        onSelect={handleSelect}
                         disabled={disabled}
                         autoFocus
                     />
