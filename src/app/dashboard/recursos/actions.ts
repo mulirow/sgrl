@@ -23,7 +23,7 @@ export async function upsertRecurso(
     if (!validatedFields.success) {
         return {
             success: false,
-            errors: validatedFields.error.issues,
+            errors: validatedFields.error.flatten().fieldErrors,
             message: "Erro de validação. Por favor, corrija os campos.",
         };
     }
@@ -58,7 +58,17 @@ export async function upsertRecurso(
             await prisma.recurso.create({ data: dataPayload as Prisma.RecursoUncheckedCreateInput });
         }
     } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2002') {
+                return {
+                    success: false,
+                    message: "Já existe um recurso com este nome neste laboratório. Por favor, escolha outro nome.",
+                };
+            }
+        }
+
         console.error("Erro no upsert do recurso:", error);
+
         return { success: false, message: "Erro no servidor. Não foi possível salvar o recurso." };
     }
 

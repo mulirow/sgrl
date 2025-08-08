@@ -27,10 +27,20 @@ export const RecursoSchema = z.object({
 });
 
 export type RecursoFormState = {
-    errors?: z.ZodIssue[];
+    errors?: {
+        nome?: string[];
+        descricao?: string[];
+        localizacao?: string[];
+        laboratorioId?: string[];
+        status?: string[];
+        id?: string[];
+        regrasReservas?: string[];
+        geral?: string[];
+    };
     message?: string;
     success: boolean;
 };
+
 
 export const BookingFormSchema = z.object({
     recursoId: z.string().nonempty({ message: "Selecione um recurso." }),
