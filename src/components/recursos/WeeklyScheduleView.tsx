@@ -1,7 +1,8 @@
 'use client';
 
-import { format, getDay, getHours, getMinutes, differenceInMinutes, addDays } from 'date-fns';
+import { getDay, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 import { type CalendarEvent } from '@/app/api/recursos/[resourceId]/eventos/route';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,7 @@ interface WeeklyScheduleViewProps {
 
 const ROW_HEIGHT_IN_REM = 3;
 const HOURS_IN_DAY = 24;
+const TIMEZONE = 'America/Recife';
 
 export function WeeklyScheduleView({ events, isLoading, weekStart }: WeeklyScheduleViewProps) {
     const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -23,8 +25,8 @@ export function WeeklyScheduleView({ events, isLoading, weekStart }: WeeklySched
     const eventsByDay: Record<number, CalendarEvent[]> = {};
     for (let i = 0; i < 7; i++) { eventsByDay[i] = []; }
     events.forEach(event => {
-        const dayIndex = getDay(new Date(event.start));
-        if (eventsByDay[dayIndex]) {
+        const dayIndex = getDay(toZonedTime(event.start, TIMEZONE));
+        if (eventsByDay[dayIndex] !== undefined) {
             eventsByDay[dayIndex].push(event);
         }
     });
@@ -40,15 +42,15 @@ export function WeeklyScheduleView({ events, isLoading, weekStart }: WeeklySched
                 <div className="row-start-1 col-start-1 sticky top-0 z-10 bg-background border-b border-r"></div>
                 {days.map((day) => (
                     <div key={day.toISOString()} className="row-start-1 col-start-auto text-center font-medium p-2 border-b border-l sticky top-0 z-10 bg-background">
-                        <p className="text-sm capitalize">{format(day, 'EEE', { locale: ptBR })}</p>
-                        <p className="text-lg">{format(day, 'd')}</p>
+                        <p className="text-sm capitalize">{formatInTimeZone(day, TIMEZONE, 'EEE', { locale: ptBR })}</p>
+                        <p className="text-lg">{formatInTimeZone(day, TIMEZONE, 'd')}</p>
                     </div>
                 ))}
 
                 <div className="row-start-2 col-start-1">
                     {hours.map(hour => (
                         <div key={hour} className="text-xs text-right pr-2 border-r" style={{ height: `${ROW_HEIGHT_IN_REM}rem` }}>
-                            <span className="relative top-[-0.5em] text-muted-foreground">{format(new Date(2000, 0, 1, hour), 'h a')}</span>
+                            <span className="relative top-[-0.5em] text-muted-foreground">{formatInTimeZone(new Date(2000, 0, 1, hour), TIMEZONE, 'h a')}</span>
                         </div>
                     ))}
                 </div>
@@ -60,11 +62,14 @@ export function WeeklyScheduleView({ events, isLoading, weekStart }: WeeklySched
                         ))}
 
                         {!isLoading && eventsByDay[dayIndex].map(event => {
-                            const start = new Date(event.start);
-                            const end = new Date(event.end);
+                            const zonedStart = toZonedTime(event.start, TIMEZONE);
+                            const zonedEnd = toZonedTime(event.end, TIMEZONE);
 
-                            const topOffset = (getHours(start) + getMinutes(start) / 60) * ROW_HEIGHT_IN_REM;
-                            const durationInMinutes = differenceInMinutes(end, start);
+                            const startHour = zonedStart.getHours();
+                            const startMinute = zonedStart.getMinutes();
+
+                            const topOffset = (startHour + startMinute / 60) * ROW_HEIGHT_IN_REM;
+                            const durationInMinutes = (zonedEnd.getTime() - zonedStart.getTime()) / 60000;
                             const height = (durationInMinutes / 60) * ROW_HEIGHT_IN_REM;
 
                             return (
@@ -81,8 +86,10 @@ export function WeeklyScheduleView({ events, isLoading, weekStart }: WeeklySched
                                         height: `${height}rem`,
                                     }}
                                 >
-                                    <p className="font-semibold truncate">{event.title.split(' - ')[1] || event.title}</p>
-                                    <p>{format(start, 'HH:mm')} - {format(end, 'HH:mm')}</p>
+                                    <p className="font-semibold truncate">{event.title}</p>
+                                    <p>
+                                        {formatInTimeZone(event.start, TIMEZONE, 'HH:mm')} - {formatInTimeZone(event.end, TIMEZONE, 'HH:mm')}
+                                    </p>
                                 </div>
                             );
                         })}
