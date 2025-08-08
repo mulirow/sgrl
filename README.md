@@ -1,6 +1,6 @@
 # 📅 Sistema de Gerenciamento de Reservas (SGR)
 
-O **SGR** é uma solução web moderna para otimizar o agendamento de espaços e equipamentos em instituições de ensino, como laboratórios e ateliês universitários. O sistema substitui processos manuais e informais por uma plataforma centralizada, transparente e eficiente, resolvendo problemas como conflitos de horário e falta de visibilidade sobre a disponibilidade dos recursos.
+O **SGR** é uma solução web moderna para otimizar o agendamento de espaços e equipamentos em instituições de ensino, como laboratórios e salas de aula. O sistema substitui processos manuais e informais por uma plataforma centralizada, transparente e eficiente, resolvendo problemas como conflitos de horário e falta de visibilidade sobre a disponibilidade dos recursos.
 
 ## 📖 Índice
 
@@ -52,8 +52,8 @@ Antes de começar, é necessário ter o seguinte instalado em seu ambiente:
 1.  **Clone o repositório:**
 
     ```bash
-    git clone https://github.com/seu-usuario/seu-repositorio.git
-    cd seu-repositorio
+    git clone https://github.com/mulirow/sgrl.git
+    cd sgrl
     ```
 
 2.  **Instale as dependências:**
