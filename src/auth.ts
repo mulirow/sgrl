@@ -43,7 +43,7 @@ export const authConfig = {
                 throw new Error('No profile email found');
             }
 
-            if (profile.email.endsWith('@ufpe.br')) {
+            if (profile.email.endsWith('ufpe.br')) {
                 return true;
             } else {
                 return '/login?error=InvalidDomain';
